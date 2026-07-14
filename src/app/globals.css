@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Share+Tech+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-rajdhani: 'Rajdhani', sans-serif;
+  --font-exo: 'Exo 2', sans-serif;
+  --font-share-tech: 'Share Tech Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #03040A;
+  color: #e2e8f0;
+  font-family: 'Exo 2', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #03040A;
+}
+::-webkit-scrollbar-thumb {
+  background: #00D4FF44;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00D4FF88;
+}
+
+/* Neon text glow */
+.neon-text {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+.neon-text-blue {
+  color: #00D4FF;
+  text-shadow: 0 0 10px #00D4FF, 0 0 20px #00D4FF44;
+}
+
+.neon-text-gold {
+  color: #FFD700;
+  text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD70044;
+}
+
+/* Glass card */
+.glass-card {
+  background: linear-gradient(135deg, rgba(13,21,38,0.8) 0%, rgba(7,11,20,0.9) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Neon border animation */
+.neon-border {
+  position: relative;
+}
+.neon-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(90deg, #00D4FF, #B400FF, #00D4FF);
+  background-size: 200% 100%;
+  animation: borderFlow 3s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+@keyframes borderFlow {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+/* Grid background */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Input styles */
+.neon-input {
+  background: rgba(7, 11, 20, 0.8);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.neon-input:focus {
+  outline: none;
+  border-color: #00D4FF;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1), 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.neon-input::placeholder {
+  color: rgba(148, 163, 184, 0.4);
+}
+
+.neon-input.error {
+  border-color: #FF003C;
+  box-shadow: 0 0 0 3px rgba(255, 0, 60, 0.1);
+}
+
+/* Button styles */
+.btn-neon {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-neon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.btn-neon:hover::before {
+  transform: translateX(100%);
+}
+
+/* Progress step */
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: rgba(0, 212, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.step-connector.active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #00D4FF, #B400FF);
+  animation: progressFlow 1s ease forwards;
+}
+
+@keyframes progressFlow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to { transform: scaleX(1); transform-origin: left; }
+}
+
+/* Scan line effect */
+.scanline::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.15), transparent);
+  animation: scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes scan {
+  0% { top: -2px; }
+  100% { top: 100vh; }
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Pulse ring */
+.pulse-ring {
+  animation: pulseRing 2s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Custom checkbox */
+.custom-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  border-radius: 4px;
+  background: rgba(7, 11, 20, 0.8);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.custom-checkbox:checked {
+  background: #00D4FF;
+  border-color: #00D4FF;
+}
+
+.custom-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #03040A;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Toast custom */
+.toast-container {
+  font-family: 'Exo 2', sans-serif;
+}
+
+/* Mobile sticky button */
+@media (max-width: 768px) {
+  .sticky-mobile-btn {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding: 16px;
+    background: linear-gradient(to top, #03040A, transparent);
+  }
+}
+
+/* Hexagon clip */
+.hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
