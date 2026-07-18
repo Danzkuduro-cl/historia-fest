@@ -28,7 +28,7 @@ export default function RootLayout({
               color: '#e2e8f0',
               border: '1px solid rgba(0, 212, 255, 0.3)',
               borderRadius: '8px',
-              fontFamily: "'Exo 2', sans-serif",
+              fontFamily: "Cambria, Georgia, serif",
               fontSize: '14px',
               backdropFilter: 'blur(12px)',
             },

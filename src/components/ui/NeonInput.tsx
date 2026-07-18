@@ -14,9 +14,9 @@ const NeonInput = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, hint, icon, className, ...props }, ref) => {
     return (
       <div className="space-y-1.5">
-        <label className="block text-sm font-body font-medium text-slate-300">
+        <label className="block text-sm font-body font-medium text-slate-700">
           {label}
-          {props.required && <span className="text-neon-blue ml-1">*</span>}
+          {props.required && <span className="text-red-600 ml-1">*</span>}
         </label>
         <div className="relative">
           {icon && (

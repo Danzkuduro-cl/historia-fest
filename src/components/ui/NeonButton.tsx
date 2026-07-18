@@ -21,10 +21,10 @@ export default function NeonButton({
   ...props
 }: NeonButtonProps) {
   const variants = {
-    primary: 'bg-neon-blue text-dark-900 hover:bg-neon-blue/90 shadow-neon-blue font-bold',
-    secondary: 'bg-transparent border border-neon-blue/40 text-neon-blue hover:bg-neon-blue/10 hover:border-neon-blue',
-    ghost: 'bg-transparent text-slate-400 hover:text-white hover:bg-white/5',
-    danger: 'bg-transparent border border-red-500/40 text-red-400 hover:bg-red-500/10 hover:border-red-500',
+    primary: 'bg-red-600 text-white hover:bg-red-700 shadow-md font-bold',
+    secondary: 'bg-transparent border border-red-600/40 text-red-600 hover:bg-red-50 hover:border-red-600',
+    ghost: 'bg-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-100',
+    danger: 'bg-transparent border border-red-600/40 text-red-600 hover:bg-red-50 hover:border-red-600',
   };
 
   const sizes = {

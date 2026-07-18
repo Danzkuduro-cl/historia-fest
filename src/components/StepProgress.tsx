@@ -24,10 +24,10 @@ export default function StepProgress({ currentStep }: StepProgressProps) {
               className={cn(
                 'w-9 h-9 rounded-full flex items-center justify-center text-sm font-display font-bold transition-all duration-300 border-2',
                 currentStep === step.id
-                  ? 'bg-neon-blue border-neon-blue text-dark-900 shadow-neon-blue'
+                  ? 'bg-red-600 border-red-600 text-white shadow-sm'
                   : currentStep > step.id
-                  ? 'bg-neon-blue/20 border-neon-blue text-neon-blue'
-                  : 'bg-dark-600 border-dark-400 text-slate-500'
+                  ? 'bg-red-50 border-red-600 text-red-600'
+                  : 'bg-slate-100 border-slate-200 text-slate-400'
               )}
             >
               {currentStep > step.id ? (
@@ -40,10 +40,10 @@ export default function StepProgress({ currentStep }: StepProgressProps) {
               className={cn(
                 'text-[10px] font-body font-medium tracking-wide whitespace-nowrap',
                 currentStep === step.id
-                  ? 'text-neon-blue'
+                  ? 'text-red-600 font-bold'
                   : currentStep > step.id
-                  ? 'text-neon-blue/60'
-                  : 'text-slate-600'
+                  ? 'text-red-600/70'
+                  : 'text-slate-400'
               )}
             >
               {step.label}
@@ -53,13 +53,12 @@ export default function StepProgress({ currentStep }: StepProgressProps) {
           {/* Connector line */}
           {idx < STEPS.length - 1 && (
             <div className="flex-1 mx-2 mb-4">
-              <div className="h-[2px] rounded-full bg-dark-400 overflow-hidden">
+              <div className="h-[2px] rounded-full bg-slate-200 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: currentStep > step.id ? '100%' : '0%',
-                    background: 'linear-gradient(90deg, #00D4FF, #B400FF)',
-                    boxShadow: '0 0 8px #00D4FF66',
+                    background: 'linear-gradient(90deg, #DC2626, #111827)',
                   }}
                 />
               </div>

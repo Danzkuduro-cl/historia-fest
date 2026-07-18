@@ -128,22 +128,22 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
   };
 
   return (
-    <div className="min-h-screen bg-dark-900 grid-bg">
+    <div className="min-h-screen bg-slate-50 grid-bg">
       {/* Detail Modal */}
       {selectedTeam && (
         <TeamDetailModal team={selectedTeam} onClose={() => setSelectedTeam(null)} />
       )}
 
       {/* Header */}
-      <header className="sticky top-0 z-40 glass-card border-b border-dark-400/50 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-neon-blue/10 border border-neon-blue/20 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-neon-blue" />
+            <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
+              <Shield className="w-4 h-4 text-red-600" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-white text-sm leading-none">Admin Dashboard</h1>
-              <p className="text-xs text-slate-500 font-body">{process.env.NEXT_PUBLIC_TOURNAMENT_NAME}</p>
+              <h1 className="font-display font-bold text-slate-900 text-sm leading-none">Admin Dashboard</h1>
+              <p className="text-xs text-slate-400 font-body">{process.env.NEXT_PUBLIC_TOURNAMENT_NAME}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -210,19 +210,19 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
         </div>
 
         {/* Slot progress */}
-        <div className="glass-card rounded-xl p-4 border border-dark-400/50">
+        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-body text-slate-400">Kapasitas Slot</span>
-            <span className="text-xs font-mono text-neon-blue">
+            <span className="text-xs font-body text-slate-500">Kapasitas Slot</span>
+            <span className="text-xs font-mono text-red-600">
               {stats.totalTeams}/{stats.maxSlots} Tim Terdaftar
             </span>
           </div>
-          <div className="h-2 bg-dark-600 rounded-full overflow-hidden">
+          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-1000"
               style={{
                 width: `${(stats.totalTeams / stats.maxSlots) * 100}%`,
-                background: 'linear-gradient(90deg, #00D4FF, #B400FF)',
+                background: 'linear-gradient(90deg, #DC2626, #111827)',
               }}
             />
           </div>
@@ -231,21 +231,21 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Cari tim, kapten, atau kode..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="neon-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-body"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-body border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
             />
           </div>
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="neon-input pl-10 pr-8 py-2.5 rounded-xl text-sm font-body appearance-none cursor-pointer min-w-[160px]"
+              className="pl-10 pr-8 py-2.5 rounded-xl text-sm font-body border border-slate-200 bg-white text-slate-900 appearance-none cursor-pointer min-w-[160px] focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
             >
               <option value="all">Semua Status</option>
               <option value="paid">Sudah Bayar</option>
@@ -258,14 +258,14 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
         </div>
 
         {/* Table */}
-        <div className="glass-card rounded-2xl border border-dark-400/50 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-dark-400/50">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-neon-blue" />
-              <h2 className="font-display font-semibold text-white">
+              <Zap className="w-4 h-4 text-red-600" />
+              <h2 className="font-display font-semibold text-slate-900">
                 Data Tim
               </h2>
-              <span className="text-xs font-mono text-neon-blue bg-neon-blue/10 px-2 py-0.5 rounded-full border border-neon-blue/20">
+              <span className="text-xs font-mono text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
                 {filtered.length}
               </span>
             </div>
@@ -275,7 +275,7 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-dark-400/50">
+                <tr className="border-b border-slate-200 bg-slate-50">
                   {['Tim', 'Kapten', 'WhatsApp', 'Kode Registrasi', 'Status', 'Tanggal', 'Aksi'].map((h) => (
                     <th key={h} className="px-5 py-3 text-left text-xs font-mono text-slate-500 uppercase tracking-wider">
                       {h}
@@ -283,34 +283,34 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-dark-400/30">
+              <tbody className="divide-y divide-slate-100">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-slate-500 font-body">
+                    <td colSpan={7} className="px-5 py-12 text-center text-slate-400 font-body">
                       {search || statusFilter !== 'all' ? 'Tidak ada hasil yang cocok' : 'Belum ada pendaftar'}
                     </td>
                   </tr>
                 ) : (
                   filtered.map((team) => (
-                    <tr key={team.id} className="hover:bg-white/2 transition-colors">
+                    <tr key={team.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2.5">
                           {team.logo_url ? (
-                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-neon-blue/20 shrink-0">
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-200 shrink-0">
                               <Image src={team.logo_url} alt={team.team_name} width={32} height={32} className="object-cover" />
                             </div>
                           ) : (
-                            <div className="w-8 h-8 rounded-lg bg-neon-blue/10 border border-neon-blue/15 flex items-center justify-center shrink-0">
-                              <Trophy className="w-3.5 h-3.5 text-neon-blue" />
+                            <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
+                              <Trophy className="w-3.5 h-3.5 text-red-600" />
                             </div>
                           )}
-                          <span className="text-sm font-body font-medium text-white">{team.team_name}</span>
+                          <span className="text-sm font-body font-medium text-slate-900">{team.team_name}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-4 text-sm font-body text-slate-300">{team.captain_name}</td>
+                      <td className="px-5 py-4 text-sm font-body text-slate-600">{team.captain_name}</td>
                       <td className="px-5 py-4 text-sm font-mono text-slate-400">{team.whatsapp}</td>
                       <td className="px-5 py-4">
-                        <code className="text-xs font-mono text-neon-blue/80 bg-neon-blue/5 px-2 py-1 rounded border border-neon-blue/10">
+                        <code className="text-xs font-mono text-red-600 bg-red-50 px-2 py-1 rounded border border-red-200">
                           {team.registration_code}
                         </code>
                       </td>
@@ -364,9 +364,9 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
           </div>
 
           {/* Mobile cards */}
-          <div className="md:hidden divide-y divide-dark-400/30">
+          <div className="md:hidden divide-y divide-slate-100">
             {filtered.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 font-body">
+              <div className="p-8 text-center text-slate-400 font-body">
                 {search || statusFilter !== 'all' ? 'Tidak ada hasil' : 'Belum ada pendaftar'}
               </div>
             ) : (
@@ -375,16 +375,16 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       {team.logo_url ? (
-                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-neon-blue/20">
+                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-slate-200">
                           <Image src={team.logo_url} alt={team.team_name} width={36} height={36} className="object-cover" />
                         </div>
                       ) : (
-                        <div className="w-9 h-9 rounded-lg bg-neon-blue/10 border border-neon-blue/15 flex items-center justify-center">
-                          <Trophy className="w-4 h-4 text-neon-blue" />
+                        <div className="w-9 h-9 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
+                          <Trophy className="w-4 h-4 text-red-600" />
                         </div>
                       )}
                       <div>
-                        <p className="text-sm font-body font-semibold text-white">{team.team_name}</p>
+                        <p className="text-sm font-body font-semibold text-slate-900">{team.team_name}</p>
                         <p className="text-xs text-slate-500 font-body">{team.captain_name}</p>
                       </div>
                     </div>
@@ -393,13 +393,13 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <code className="text-xs font-mono text-neon-blue/70">{team.registration_code}</code>
+                    <code className="text-xs font-mono text-red-600">{team.registration_code}</code>
                     <div className="flex gap-2">
                       <select
                         value={team.payment_status}
                         onChange={(e) => handleUpdateStatus(team.id, e.target.value)}
                         disabled={updatingId === team.id}
-                        className="text-xs neon-input rounded-lg px-2 py-1 cursor-pointer"
+                        className="text-xs border border-slate-200 bg-white text-slate-700 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-red-400"
                       >
                         <option value="pending">Menunggu</option>
                         <option value="paid">Lunas</option>
@@ -428,35 +428,35 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
       {/* Confirm Delete Modal */}
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setConfirmDelete(null)}>
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
           <div
-            className="relative glass-card rounded-2xl border border-red-500/30 p-6 w-full max-w-sm shadow-2xl"
+            className="relative bg-white rounded-2xl border border-slate-200 shadow-xl p-6 w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5 text-red-400" />
+              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <p className="font-display font-bold text-white">Hapus Tim?</p>
+                <p className="font-display font-bold text-slate-900">Hapus Tim?</p>
                 <p className="text-xs text-slate-400 font-body mt-0.5">Tindakan ini tidak bisa dibatalkan</p>
               </div>
             </div>
-            <p className="text-sm font-body text-slate-300 mb-5">
+            <p className="text-sm font-body text-slate-600 mb-5">
               Semua data tim{' '}
-              <span className="text-white font-semibold">&quot;{confirmDelete.team_name}&quot;</span>{' '}
+              <span className="text-slate-900 font-semibold">&quot;{confirmDelete.team_name}&quot;</span>{' '}
               termasuk pemain dan riwayat pembayaran akan dihapus permanen.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-2.5 rounded-xl border border-dark-400 text-slate-300 text-sm font-body hover:border-slate-500 transition-all"
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-body hover:bg-slate-50 transition-all"
               >
                 Batal
               </button>
               <button
                 onClick={() => handleDelete(confirmDelete)}
-                className="flex-1 py-2.5 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-sm font-body font-semibold hover:bg-red-500/30 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-body font-semibold hover:bg-red-700 transition-all flex items-center justify-center gap-2"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 Hapus
