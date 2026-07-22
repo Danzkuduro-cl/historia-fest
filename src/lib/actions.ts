@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { HERO_TEAMS, HeroTeam } from './hero-teams';
 
 const REGISTRATION_FEE = parseInt(process.env.NEXT_PUBLIC_REGISTRATION_FEE || '50000');
-const TOURNAMENT_NAME = process.env.NEXT_PUBLIC_TOURNAMENT_NAME || 'ML Championship 2025';
+const TOURNAMENT_NAME = process.env.NEXT_PUBLIC_TOURNAMENT_NAME || 'ML Championship 2026';
 
 export interface RegistrationPayload {
   team_name: string;
@@ -124,8 +124,10 @@ export async function registerTeam(payload: RegistrationPayload) {
   }
 
   try {
+    // Midtrans order_id: max 50 chars, no special characters
     const shortTeamId = team.id.replace(/-/g, '').substring(0, 8).toUpperCase();
     const orderId = `MLT-${shortTeamId}-${Date.now().toString(36).toUpperCase()}`;
+    
     const midtransResponse = await createMidtransTransaction({
       orderId,
       amount: REGISTRATION_FEE,
@@ -159,15 +161,17 @@ export async function registerTeam(payload: RegistrationPayload) {
       snapToken: midtransResponse.token,
       paymentUrl: midtransResponse.redirect_url,
     };
-  } catch (midtransError) {
-    console.error('Midtrans error:', midtransError);
+  } catch (midtransError: unknown) {
+    const errorMsg = midtransError instanceof Error ? midtransError.message : 'Gagal terhubung ke Midtrans';
+    console.error('Midtrans transaction creation failed:', errorMsg);
+    
     return {
       success: true,
       teamId: team.id,
       registrationCode,
       snapToken: null,
       paymentUrl: null,
-      warning: 'Pendaftaran berhasil tetapi gagal membuat pembayaran. Hubungi admin.',
+      warning: `Pendaftaran berhasil, tetapi pembayaran gagal dibuat: ${errorMsg}`,
     };
   }
 }

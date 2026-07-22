@@ -123,18 +123,18 @@ export default function LandingPageClient({ remainingSlots }: LandingPageClientP
               Diselenggarakan oleh <strong>Komunitas Via Historia Magelang</strong> bekerja sama dengan <strong>DISPARPORA Kabupaten Magelang</strong>, event ini hadir memperingati HUT Kemerdekaan RI ke-81. Membawa tema besar <span className="text-red-600 font-semibold">"Melawan Amnesia Sejarah Bangsa"</span>, kami memadukan olahraga e-sport modern, festival kuliner UMKM, dan malam refleksi kebangsaan dalam satu festival rakyat yang megah.
             </p>
 
-            {/* Unique Hero Rule Card — HIDDEN: belum final */}
-            <div className="hidden bg-red-50/40 border border-red-200/60 rounded-xl p-5 md:p-6">
+            {/* Unique Hero Rule Card */}
+            <div className="bg-red-50/70 border border-red-200 rounded-xl p-5 md:p-6 shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600 shrink-0 mt-0.5">
                   <Shield className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
                   <h3 className="font-display font-bold text-slate-900 text-lg">
                     Aturan Khusus: Sistem Nama Pahlawan ⚔️
                   </h3>
-                  <p className="text-slate-600 text-xs md:text-sm font-body leading-relaxed">
-                    Setiap tim yang bertanding tidak menggunakan nama bebas, melainkan akan <strong>diberikan nama Pahlawan Nasional oleh panitia</strong> (misal: <em>Tim Jenderal Sudirman</em>, <em>Tim Slamet Riyadi</em>, <em>Tim Agus Salim</em>). Panitia akan membacakan profil singkat pahlawan tersebut setiap kali tim bertanding di panggung, dan setiap tim wajib mengetahui sejarah pahlawan yang nama mereka sandang!
+                  <p className="text-slate-700 text-xs md:text-sm font-body leading-relaxed">
+                    Setiap tim yang bertanding memilih <strong>1 nama Pahlawan Nasional</strong> saat pendaftaran (misal: <em>Maramis Knights</em>, <em>Chalim Sentinels</em>, <em>Sudirman Paladins</em>). Panitia akan membacakan profil singkat pahlawan tersebut setiap kali tim bertanding di panggung, dan setiap tim wajib mengetahui sejarah pahlawan yang nama mereka sandang!
                   </p>
                 </div>
               </div>
@@ -286,8 +286,8 @@ export default function LandingPageClient({ remainingSlots }: LandingPageClientP
           </div>
         </section>
 
-        {/* Section: Rundown (Timeline) — HIDDEN: rundown belum final */}
-        <section className="hidden space-y-6 scroll-mt-20">
+        {/* Section: Rundown (Timeline) — HIDDEN: belum final */}
+        <section id="rundown" className="hidden space-y-6 scroll-mt-20">
           <div className="text-center space-y-2">
             <span className="text-xs font-mono font-bold text-red-600 bg-red-50 border border-red-100 px-3 py-1 rounded-full uppercase">
               Rundown Event

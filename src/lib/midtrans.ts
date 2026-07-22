@@ -30,7 +30,12 @@ export async function createMidtransTransaction(
 ): Promise<MidtransSnapResponse> {
   const { orderId, amount, customerName, customerPhone, itemName } = params;
 
-  const authString = Buffer.from(`${MIDTRANS_SERVER_KEY}:`).toString('base64');
+  // Clean values for Midtrans API specs
+  const cleanItemName = itemName.replace(/[^\w\s-]/gi, '').substring(0, 50);
+  const cleanCustomerName = customerName.substring(0, 50);
+  const cleanPhone = customerPhone.replace(/[^\d+]/g, '').substring(0, 19);
+
+  const authString = Buffer.from(`${MIDTRANS_SERVER_KEY.trim()}:`).toString('base64');
 
   const body = {
     transaction_details: {
@@ -42,12 +47,12 @@ export async function createMidtransTransaction(
         id: 'TOURNAMENT_FEE',
         price: amount,
         quantity: 1,
-        name: itemName,
+        name: cleanItemName,
       },
     ],
     customer_details: {
-      first_name: customerName,
-      phone: customerPhone,
+      first_name: cleanCustomerName,
+      phone: cleanPhone,
     },
     enabled_payments: ['qris', 'gopay', 'dana', 'bank_transfer', 'bca_va', 'bni_va', 'bri_va'],
     callbacks: {
@@ -71,15 +76,17 @@ export async function createMidtransTransaction(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error_messages?.[0] || 'Failed to create transaction');
+    const errorJson = await response.json().catch(() => ({}));
+    const errorMsg = errorJson.error_messages?.join(', ') || errorJson.message || `Midtrans HTTP ${response.status}`;
+    console.error('Midtrans API Error response:', errorJson);
+    throw new Error(errorMsg);
   }
 
   return response.json();
 }
 
 export async function getMidtransTransactionStatus(orderId: string) {
-  const authString = Buffer.from(`${MIDTRANS_SERVER_KEY}:`).toString('base64');
+  const authString = Buffer.from(`${MIDTRANS_SERVER_KEY.trim()}:`).toString('base64');
 
   const response = await fetch(`${API_URL}/${orderId}/status`, {
     headers: {
@@ -102,7 +109,7 @@ export function verifyMidtransSignature(
 ): boolean {
   const hash = crypto
     .createHash('sha512')
-    .update(`${orderId}${statusCode}${grossAmount}${MIDTRANS_SERVER_KEY}`)
+    .update(`${orderId}${statusCode}${grossAmount}${MIDTRANS_SERVER_KEY.trim()}`)
     .digest('hex');
 
   return hash === signatureKey;
