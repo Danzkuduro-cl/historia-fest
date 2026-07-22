@@ -1,4 +1,4 @@
-import { getRemainingSlots } from '@/lib/actions';
+import { getRemainingSlots, getAvailableHeroTeams } from '@/lib/actions';
 import RegistrationPageClient from '../RegistrationPageClient';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,15 @@ export const metadata = {
 };
 
 export default async function RegisterPage() {
-  const remainingSlots = await getRemainingSlots();
+  const [remainingSlots, availableHeroTeams] = await Promise.all([
+    getRemainingSlots(),
+    getAvailableHeroTeams(),
+  ]);
 
-  return <RegistrationPageClient remainingSlots={remainingSlots} />;
+  return (
+    <RegistrationPageClient
+      remainingSlots={remainingSlots}
+      availableHeroTeams={availableHeroTeams}
+    />
+  );
 }

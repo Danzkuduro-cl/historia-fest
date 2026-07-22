@@ -4,6 +4,7 @@ import { createServerSupabase } from '@/lib/supabase';
 import { createMidtransTransaction } from '@/lib/midtrans';
 import { generateRegistrationCode } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
+import { HERO_TEAMS, HeroTeam } from './hero-teams';
 
 const REGISTRATION_FEE = parseInt(process.env.NEXT_PUBLIC_REGISTRATION_FEE || '50000');
 const TOURNAMENT_NAME = process.env.NEXT_PUBLIC_TOURNAMENT_NAME || 'ML Championship 2025';
@@ -23,10 +24,30 @@ export interface RegistrationPayload {
   }>;
 }
 
+export async function getAvailableHeroTeams(): Promise<HeroTeam[]> {
+  const supabase = createServerSupabase();
+  const { data: takenTeams } = await supabase
+    .from('teams')
+    .select('team_name')
+    .in('payment_status', ['paid', 'pending']);
+
+  const takenSet = new Set((takenTeams || []).map((t) => t.team_name.toLowerCase()));
+  return HERO_TEAMS.filter((ht) => !takenSet.has(ht.team_name.toLowerCase()));
+}
+
 export async function registerTeam(payload: RegistrationPayload) {
   const supabase = createServerSupabase();
 
-  // Check for duplicate team name
+  // Validate hero team name selection
+  const validHero = HERO_TEAMS.find(
+    (ht) => ht.team_name.toLowerCase() === payload.team_name.trim().toLowerCase()
+  );
+
+  if (!validHero) {
+    return { error: 'Nama tim Pahlawan tidak valid. Pilih dari daftar yang tersedia.' };
+  }
+
+  // Check if chosen team name is already taken
   const { data: existingTeam } = await supabase
     .from('teams')
     .select('id')
@@ -34,7 +55,7 @@ export async function registerTeam(payload: RegistrationPayload) {
     .single();
 
   if (existingTeam) {
-    return { error: 'Nama tim sudah terdaftar. Gunakan nama tim yang berbeda.' };
+    return { error: `Nama tim "${payload.team_name}" sudah terdaftar oleh tim lain. Silakan pilih nama tim Pahlawan lainnya.` };
   }
 
   // Check for duplicate MLBB IDs
@@ -58,6 +79,9 @@ export async function registerTeam(payload: RegistrationPayload) {
   // Generate registration code
   const registrationCode = generateRegistrationCode(payload.team_name);
 
+  // Set default hero logo if logo_url not specified
+  const logoUrl = payload.logo_url || `/images/heroes/${validHero.id}.png`;
+
   // Insert team
   const { data: team, error: teamError } = await supabase
     .from('teams')
@@ -65,7 +89,7 @@ export async function registerTeam(payload: RegistrationPayload) {
       team_name: payload.team_name,
       captain_name: payload.captain_name,
       whatsapp: payload.whatsapp,
-      logo_url: payload.logo_url,
+      logo_url: logoUrl,
       registration_code: registrationCode,
       payment_status: 'pending',
     })
@@ -100,8 +124,6 @@ export async function registerTeam(payload: RegistrationPayload) {
   }
 
   try {
-    // Midtrans order_id maks 50 karakter
-    // MLT- (4) + shortId (8) + - (1) + base36 timestamp (~9) = ~22 karakter
     const shortTeamId = team.id.replace(/-/g, '').substring(0, 8).toUpperCase();
     const orderId = `MLT-${shortTeamId}-${Date.now().toString(36).toUpperCase()}`;
     const midtransResponse = await createMidtransTransaction({
@@ -139,7 +161,6 @@ export async function registerTeam(payload: RegistrationPayload) {
     };
   } catch (midtransError) {
     console.error('Midtrans error:', midtransError);
-    // Still return success but without payment
     return {
       success: true,
       teamId: team.id,

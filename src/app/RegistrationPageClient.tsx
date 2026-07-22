@@ -14,8 +14,9 @@ import StepPlayers from '@/components/form/StepPlayers';
 import StepSubstitutes from '@/components/form/StepSubstitutes';
 import StepReview from '@/components/form/StepReview';
 import NeonButton from '@/components/ui/NeonButton';
-import { registerTeam, uploadTeamLogo } from '@/lib/actions';
+import { registerTeam } from '@/lib/actions';
 import { ChevronLeft, ChevronRight, Send } from 'lucide-react';
+import { HeroTeam } from '@/lib/hero-teams';
 
 const playerSchema = z.object({
   full_name: z.string().min(3, 'Nama minimal 3 karakter').max(50, 'Nama terlalu panjang'),
@@ -32,11 +33,9 @@ const optionalPlayerSchema = z.object({
 });
 
 const formSchema = z.object({
-  team_name: z.string().min(3, 'Nama tim minimal 3 karakter').max(30, 'Nama tim maksimal 30 karakter').regex(/^[a-zA-Z0-9\s_-]+$/, 'Karakter tidak valid'),
+  team_name: z.string().min(1, 'Wajib memilih nama tim Pahlawan'),
   captain_name: z.string().min(3, 'Nama kapten minimal 3 karakter'),
   whatsapp: z.string().min(10, 'Nomor WA minimal 10 digit').regex(/^[0-9+]+$/, 'Nomor tidak valid'),
-  logo: z.any().optional(),
-  logoPreview: z.string().optional(),
   players: z.array(playerSchema).length(5),
   substitutes: z.array(optionalPlayerSchema).max(2),
   agreed: z.boolean().refine((v) => v === true, { message: 'Wajib menyetujui peraturan' }),
@@ -46,6 +45,7 @@ type FormData = z.infer<typeof formSchema>;
 
 interface RegistrationPageClientProps {
   remainingSlots: number;
+  availableHeroTeams: HeroTeam[];
 }
 
 declare global {
@@ -61,7 +61,7 @@ declare global {
   }
 }
 
-export default function RegistrationPageClient({ remainingSlots }: RegistrationPageClientProps) {
+export default function RegistrationPageClient({ remainingSlots, availableHeroTeams }: RegistrationPageClientProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -102,7 +102,6 @@ export default function RegistrationPageClient({ remainingSlots }: RegistrationP
           ] as Parameters<typeof trigger>[0])
         )
       );
-      // Check duplicate MLBB IDs
       const players = watch('players');
       const ids = players.map((p) => p.mlbb_id).filter(Boolean);
       if (new Set(ids).size !== ids.length) {
@@ -139,16 +138,6 @@ export default function RegistrationPageClient({ remainingSlots }: RegistrationP
     setIsSubmitting(true);
 
     try {
-      // Upload logo if present
-      let logoUrl: string | undefined;
-      if (data.logo && data.logo[0]) {
-        const logoFormData = new FormData();
-        logoFormData.append('logo', data.logo[0]);
-        const uploadResult = await uploadTeamLogo(logoFormData);
-        logoUrl = uploadResult.url || undefined;
-      }
-
-      // Filter valid substitutes
       const validSubs = (data.substitutes || []).filter(
         (s) => s.nickname && s.mlbb_id && s.full_name && s.server_id
       );
@@ -169,7 +158,6 @@ export default function RegistrationPageClient({ remainingSlots }: RegistrationP
         team_name: data.team_name,
         captain_name: data.captain_name,
         whatsapp: data.whatsapp,
-        logo_url: logoUrl,
         players: allPlayers,
       });
 
@@ -182,16 +170,13 @@ export default function RegistrationPageClient({ remainingSlots }: RegistrationP
         toast(result.warning as string, { icon: '⚠️' });
       }
 
-      // Open Midtrans Snap
       if (result.snapToken) {
         const midtransClientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '';
-        // Deteksi production dari prefix client key (SB- = sandbox, tanpa SB- = production)
-        const isProduction = !midtransClientKey.startsWith('SB-');
+        const isProduction = process.env.MIDTRANS_IS_PRODUCTION === 'true' || !midtransClientKey.startsWith('SB-');
         const snapUrl = isProduction
           ? 'https://app.midtrans.com/snap/snap.js'
           : 'https://app.sandbox.midtrans.com/snap/snap.js';
 
-        // Load Snap script
         if (!document.getElementById('snap-script')) {
           await new Promise<void>((resolve, reject) => {
             const script = document.createElement('script');
@@ -204,29 +189,33 @@ export default function RegistrationPageClient({ remainingSlots }: RegistrationP
           });
         }
 
-        window.snap.pay(result.snapToken, {
-          onSuccess: () => {
-            router.push(`/payment/success?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-          },
-          onPending: () => {
-            router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-          },
-          onError: () => {
-            toast.error('Pembayaran gagal. Silakan coba lagi.');
-            router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-          },
-          onClose: () => {
-            toast('Pembayaran dibatalkan. Kode registrasi kamu sudah tersimpan.', { icon: 'ℹ️' });
-            router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-          },
-        });
+        if (window.snap && typeof window.snap.pay === 'function') {
+          window.snap.pay(result.snapToken, {
+            onSuccess: () => {
+              router.push(`/payment/success?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
+            },
+            onPending: () => {
+              router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
+            },
+            onError: () => {
+              toast.error('Pembayaran gagal. Silakan coba lagi.');
+              router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
+            },
+            onClose: () => {
+              toast('Pembayaran dibatalkan. Kode registrasi kamu sudah tersimpan.', { icon: 'ℹ️' });
+              router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
+            },
+          });
+        } else if (result.paymentUrl) {
+          window.location.href = result.paymentUrl;
+        }
       } else if (result.paymentUrl) {
         window.location.href = result.paymentUrl;
       } else {
         router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Registration submit error:', err);
       toast.error('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
@@ -234,152 +223,92 @@ export default function RegistrationPageClient({ remainingSlots }: RegistrationP
   };
 
   return (
-    <FormProvider {...methods}>
-      <div className="min-h-screen bg-slate-50 grid-bg text-slate-900">
-        {/* Registration Page Header */}
-        <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
-          <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            {/* Branding */}
-            <div className="flex items-center gap-3">
-              <Image
-                src="/images/Logo.png"
-                alt="Logo Fiesta Historia 2026"
-                width={40}
-                height={40}
-                className="rounded-lg object-contain"
-              />
-              <div className="flex items-center gap-2">
-                <span className="font-display font-bold text-lg tracking-wider text-slate-900">
-                  FIESTA<span className="text-red-600">HISTORIA</span>
-                </span>
-                <span className="text-xs bg-red-50 text-red-600 border border-red-200/50 px-2 py-0.5 rounded-full font-mono font-bold">
-                  2026
-                </span>
-              </div>
-            </div>
-
-            {/* Back to landing */}
-            <a
-              href="/"
-              className="flex items-center gap-1.5 text-sm font-body font-medium text-slate-500 hover:text-red-600 transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Kembali ke Beranda
-            </a>
-          </div>
-        </header>
-
-        {/* Form Section */}
-        <div className="max-w-2xl mx-auto px-4 pb-32 md:pb-12 pt-8" ref={formTopRef}>
-          <div className="text-center space-y-2 mb-6">
-            <span className="text-xs font-mono font-bold text-red-600 bg-red-50 border border-red-100 px-3 py-1 rounded-full uppercase">
-              Formulir Pendaftaran
+    <div className="min-h-screen bg-slate-50 grid-bg py-8 px-4 sm:px-6">
+      <div ref={formTopRef} className="max-w-2xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 text-sm font-body font-semibold transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Kembali ke Beranda
+          </button>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/images/Logo.png"
+              alt="Logo"
+              width={32}
+              height={32}
+              className="rounded object-contain"
+            />
+            <span className="text-xs font-mono font-bold text-slate-700 hidden sm:inline">
+              Fiesta Historia 2026
             </span>
-            <h2 className="font-display font-bold text-3xl text-slate-900">
-              Daftarkan Tim Kamu
-            </h2>
-            <p className="text-slate-500 text-xs md:text-sm font-body max-w-sm mx-auto mt-1">
-              Lengkapi data tim, 5 pemain utama, dan cadangan untuk mengunci slot turnamen.
-            </p>
           </div>
+        </div>
 
-          {/* Step Progress */}
-          <div className="glass-card rounded-2xl p-4 mb-4 border border-slate-200 bg-white shadow-sm">
-            <StepProgress currentStep={currentStep} />
-          </div>
+        {/* Step Progress Bar */}
+        <StepProgress currentStep={currentStep} />
 
-          {/* Form Card */}
-          <div className="glass-card rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-sm">
-            <div className="p-5 md:p-6">
-              {currentStep === 1 && <StepTeamInfo />}
+        {/* Form Container */}
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xl">
+              {currentStep === 1 && <StepTeamInfo availableHeroTeams={availableHeroTeams} />}
               {currentStep === 2 && <StepPlayers />}
               {currentStep === 3 && <StepSubstitutes />}
               {currentStep === 4 && <StepReview />}
+
+              {/* Navigation Buttons */}
+              <div className="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-200">
+                {currentStep > 1 ? (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-sm font-body font-semibold transition-all"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Sebelumnya
+                  </button>
+                ) : (
+                  <div />
+                )}
+
+                {currentStep < 4 ? (
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-display font-bold text-sm shadow-md transition-all"
+                  >
+                    <span>Lanjut</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-display font-bold text-sm shadow-md transition-all disabled:opacity-60"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Memproses...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Daftar & Bayar</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
-
-            {/* Navigation - Desktop */}
-            <div className="hidden md:flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/50">
-              {currentStep > 1 ? (
-                <NeonButton
-                  variant="ghost"
-                  icon={<ChevronLeft className="w-4 h-4" />}
-                  onClick={handleBack}
-                  disabled={isSubmitting}
-                >
-                  Kembali
-                </NeonButton>
-              ) : (
-                <div />
-              )}
-
-              {currentStep < 4 ? (
-                <NeonButton
-                  variant="primary"
-                  size="md"
-                  onClick={handleNext}
-                  icon={<ChevronRight className="w-4 h-4 order-last" />}
-                >
-                  Lanjut
-                </NeonButton>
-              ) : (
-                <NeonButton
-                  variant="primary"
-                  size="lg"
-                  loading={isSubmitting}
-                  onClick={handleSubmit(onSubmit)}
-                  icon={<Send className="w-4 h-4 order-last" />}
-                  disabled={remainingSlots === 0}
-                >
-                  {isSubmitting ? 'Mendaftarkan...' : 'Daftar & Bayar'}
-                </NeonButton>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Sticky Navigation */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-6"
-          style={{ background: 'linear-gradient(to top, #F9FAFB 70%, transparent)' }}>
-          <div className="flex gap-3">
-            {currentStep > 1 && (
-              <NeonButton
-                variant="secondary"
-                size="lg"
-                className="flex-shrink-0"
-                icon={<ChevronLeft className="w-4 h-4" />}
-                onClick={handleBack}
-                disabled={isSubmitting}
-              >
-                Balik
-              </NeonButton>
-            )}
-
-            {currentStep < 4 ? (
-              <NeonButton
-                variant="primary"
-                size="lg"
-                className="flex-1"
-                onClick={handleNext}
-                icon={<ChevronRight className="w-4 h-4 order-last" />}
-              >
-                Lanjut →
-              </NeonButton>
-            ) : (
-              <NeonButton
-                variant="primary"
-                size="lg"
-                className="flex-1"
-                loading={isSubmitting}
-                onClick={handleSubmit(onSubmit)}
-                icon={<Send className="w-4 h-4 order-last" />}
-                disabled={remainingSlots === 0}
-              >
-                {isSubmitting ? 'Memproses...' : 'Daftar & Bayar Sekarang'}
-              </NeonButton>
-            )}
-          </div>
-        </div>
+          </form>
+        </FormProvider>
       </div>
-    </FormProvider>
+    </div>
   );
 }
