@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Clock, Copy, Check, MessageCircle, RefreshCw, Home } from 'lucide-react';
 import { getWhatsAppUrl } from '@/lib/utils';
 import NeonButton from '@/components/ui/NeonButton';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function PendingContent() {
   const params = useSearchParams();
@@ -23,6 +23,11 @@ function PendingContent() {
       setTimeout(() => setCopied(false), 2000);
     });
   };
+
+  // Clear pending payment from localStorage when user reaches this page
+  useEffect(() => {
+    try { localStorage.removeItem('historia-pending-payment'); } catch {}
+  }, []);
 
   const waMessage = `Halo admin, saya sudah melakukan pembayaran.\n\nNama Tim: ${decodeURIComponent(teamName)}\nKode Registrasi: ${code}\nJumlah: Rp${parseInt(fee).toLocaleString('id-ID')}\n\nMohon konfirmasi pembayaran saya. Terima kasih!`;
 

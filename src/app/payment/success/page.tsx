@@ -18,6 +18,9 @@ function SuccessContent() {
   const tournamentName = process.env.NEXT_PUBLIC_TOURNAMENT_NAME || 'ML Championship 2025';
 
   useEffect(() => {
+    // Clear any pending payment from localStorage on success
+    try { localStorage.removeItem('historia-pending-payment'); } catch {}
+
     // Fire confetti
     const duration = 3000;
     const end = Date.now() + duration;

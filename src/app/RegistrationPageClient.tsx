@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -61,11 +61,14 @@ declare global {
   }
 }
 
+const STORAGE_KEY = 'historia-pending-payment';
+
 interface PendingPayment {
   snapToken: string;
   registrationCode: string;
   teamId: string;
   teamName: string;
+  paymentUrl?: string;
 }
 
 export default function RegistrationPageClient({ remainingSlots, availableHeroTeams }: RegistrationPageClientProps) {
@@ -76,7 +79,38 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
   const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [storedPending, setStoredPending] = useState<PendingPayment | null>(null);
+  const [isCancellingStored, setIsCancellingStored] = useState(false);
   const formTopRef = useRef<HTMLDivElement>(null);
+
+  // Load pending payment from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        setStoredPending(JSON.parse(stored));
+      }
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, []);
+
+  const savePendingToStorage = (payment: PendingPayment) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payment));
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
+  const clearPendingFromStorage = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      setStoredPending(null);
+    } catch {
+      // Ignore storage errors
+    }
+  };
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -100,10 +134,12 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
   const openSnap = (payment: PendingPayment) => {
     window.snap.pay(payment.snapToken, {
       onSuccess: () => {
+        clearPendingFromStorage();
         setPendingPayment(null);
         router.push(`/payment/success?code=${payment.registrationCode}&team=${encodeURIComponent(payment.teamName)}`);
       },
       onPending: () => {
+        clearPendingFromStorage();
         setPendingPayment(null);
         router.push(`/payment/pending?code=${payment.registrationCode}&team=${encodeURIComponent(payment.teamName)}`);
       },
@@ -129,6 +165,7 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
     setIsCancelling(true);
     try {
       await cancelRegistration(pendingPayment.teamId);
+      clearPendingFromStorage();
       toast('Pendaftaran dibatalkan.', { icon: 'ℹ️' });
     } catch {
       toast.error('Gagal membatalkan data. Coba lagi.');
@@ -137,6 +174,25 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
       setShowCancelModal(false);
       setPendingPayment(null);
       setCurrentStep(4);
+    }
+  };
+
+  const handleResumePendingPayment = () => {
+    if (!storedPending?.paymentUrl) return;
+    window.location.href = storedPending.paymentUrl;
+  };
+
+  const handleCancelStoredPending = async () => {
+    if (!storedPending) return;
+    setIsCancellingStored(true);
+    try {
+      await cancelRegistration(storedPending.teamId);
+      clearPendingFromStorage();
+      toast('Pendaftaran lama telah dibatalkan.', { icon: 'ℹ️' });
+    } catch {
+      toast.error('Gagal membatalkan. Coba lagi.');
+    } finally {
+      setIsCancellingStored(false);
     }
   };
 
@@ -247,8 +303,10 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
           registrationCode: result.registrationCode,
           teamId: result.teamId,
           teamName: data.team_name,
+          paymentUrl: result.paymentUrl || '',
         };
         setPendingPayment(payment);
+        savePendingToStorage(payment);
 
         if (window.snap && typeof window.snap.pay === 'function') {
           openSnap(payment);
@@ -256,6 +314,13 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
           window.location.href = result.paymentUrl;
         }
       } else if (result.paymentUrl) {
+        savePendingToStorage({
+          snapToken: '',
+          registrationCode: result.registrationCode,
+          teamId: result.teamId,
+          teamName: data.team_name,
+          paymentUrl: result.paymentUrl,
+        });
         window.location.href = result.paymentUrl;
       } else {
         router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
@@ -301,6 +366,41 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
           </div>
         </div>
       )}
+      {/* Pending Payment Resume Banner */}
+      {storedPending && !pendingPayment && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg px-4">
+          <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 shadow-xl">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-amber-800">Ada pembayaran yang belum selesai!</p>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  Tim: <span className="font-semibold">{storedPending.teamName}</span>
+                  {' · '}Kode: <span className="font-mono font-semibold">{storedPending.registrationCode}</span>
+                </p>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={handleResumePendingPayment}
+                    className="flex-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg text-xs transition-all"
+                  >
+                    Lanjutkan Pembayaran
+                  </button>
+                  <button
+                    onClick={handleCancelStoredPending}
+                    disabled={isCancellingStored}
+                    className="flex-1 px-3 py-1.5 border border-amber-400 text-amber-700 hover:bg-amber-100 font-semibold rounded-lg text-xs transition-all disabled:opacity-60"
+                  >
+                    {isCancellingStored ? 'Membatalkan...' : 'Batalkan'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div ref={formTopRef} className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
