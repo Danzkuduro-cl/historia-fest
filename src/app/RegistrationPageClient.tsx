@@ -14,8 +14,8 @@ import StepPlayers from '@/components/form/StepPlayers';
 import StepSubstitutes from '@/components/form/StepSubstitutes';
 import StepReview from '@/components/form/StepReview';
 import NeonButton from '@/components/ui/NeonButton';
-import { registerTeam } from '@/lib/actions';
-import { ChevronLeft, ChevronRight, Send } from 'lucide-react';
+import { registerTeam, cancelRegistration } from '@/lib/actions';
+import { AlertTriangle, ChevronLeft, ChevronRight, Send } from 'lucide-react';
 import { HeroTeam } from '@/lib/hero-teams';
 
 const playerSchema = z.object({
@@ -61,11 +61,21 @@ declare global {
   }
 }
 
+interface PendingPayment {
+  snapToken: string;
+  registrationCode: string;
+  teamId: string;
+  teamName: string;
+}
+
 export default function RegistrationPageClient({ remainingSlots, availableHeroTeams }: RegistrationPageClientProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const formTopRef = useRef<HTMLDivElement>(null);
 
   const methods = useForm<FormData>({
@@ -85,6 +95,49 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
 
   const scrollToTop = () => {
     formTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const openSnap = (payment: PendingPayment) => {
+    window.snap.pay(payment.snapToken, {
+      onSuccess: () => {
+        setPendingPayment(null);
+        router.push(`/payment/success?code=${payment.registrationCode}&team=${encodeURIComponent(payment.teamName)}`);
+      },
+      onPending: () => {
+        setPendingPayment(null);
+        router.push(`/payment/pending?code=${payment.registrationCode}&team=${encodeURIComponent(payment.teamName)}`);
+      },
+      onError: () => {
+        toast.error('Pembayaran gagal. Silakan coba lagi.');
+        setShowCancelModal(true);
+      },
+      onClose: () => {
+        setShowCancelModal(true);
+      },
+    });
+  };
+
+  const handleContinuePayment = () => {
+    if (!pendingPayment) return;
+    setShowCancelModal(false);
+    // Small delay so modal fully closes before snap reopens
+    setTimeout(() => openSnap(pendingPayment), 300);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!pendingPayment) return;
+    setIsCancelling(true);
+    try {
+      await cancelRegistration(pendingPayment.teamId);
+      toast('Pendaftaran dibatalkan.', { icon: 'ℹ️' });
+    } catch {
+      toast.error('Gagal membatalkan data. Coba lagi.');
+    } finally {
+      setIsCancelling(false);
+      setShowCancelModal(false);
+      setPendingPayment(null);
+      setCurrentStep(4);
+    }
   };
 
   const validateStep = async (step: number): Promise<boolean> => {
@@ -189,23 +242,16 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
           });
         }
 
+        const payment: PendingPayment = {
+          snapToken: result.snapToken,
+          registrationCode: result.registrationCode,
+          teamId: result.teamId,
+          teamName: data.team_name,
+        };
+        setPendingPayment(payment);
+
         if (window.snap && typeof window.snap.pay === 'function') {
-          window.snap.pay(result.snapToken, {
-            onSuccess: () => {
-              router.push(`/payment/success?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-            },
-            onPending: () => {
-              router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-            },
-            onError: () => {
-              toast.error('Pembayaran gagal. Silakan coba lagi.');
-              router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-            },
-            onClose: () => {
-              toast('Pembayaran dibatalkan. Kode registrasi kamu sudah tersimpan.', { icon: 'ℹ️' });
-              router.push(`/payment/pending?code=${result.registrationCode}&team=${encodeURIComponent(data.team_name)}`);
-            },
-          });
+          openSnap(payment);
         } else if (result.paymentUrl) {
           window.location.href = result.paymentUrl;
         }
@@ -224,6 +270,37 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
 
   return (
     <div className="min-h-screen bg-slate-50 grid-bg py-8 px-4 sm:px-6">
+      {/* Cancel Payment Confirmation Modal */}
+      {showCancelModal && pendingPayment && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="text-center">
+              <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-7 h-7 text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 mb-2">Batalkan Pembayaran?</h3>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                Apakah kamu yakin ingin membatalkan pembayaran? Data tidak akan tersimpan dan kamu berisiko mengulang pengisian pendaftaran dari awal.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handleContinuePayment}
+                  className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all text-sm"
+                >
+                  Lanjutkan Pembayaran
+                </button>
+                <button
+                  onClick={handleConfirmCancel}
+                  disabled={isCancelling}
+                  className="w-full px-4 py-3 border border-slate-300 text-slate-600 hover:bg-slate-50 font-semibold rounded-xl transition-all text-sm disabled:opacity-60"
+                >
+                  {isCancelling ? 'Membatalkan...' : 'Ya, Batalkan'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div ref={formTopRef} className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">

@@ -234,3 +234,26 @@ export async function getTeamByRegistrationCode(code: string) {
 
   return data;
 }
+
+export async function cancelRegistration(teamId: string) {
+  const supabase = createServerSupabase();
+
+  // Delete players first (FK constraint)
+  await supabase.from('players').delete().eq('team_id', teamId);
+
+  // Delete payments
+  await supabase.from('payments').delete().eq('team_id', teamId);
+
+  // Delete team
+  const { error } = await supabase.from('teams').delete().eq('id', teamId);
+
+  if (error) {
+    console.error('Cancel registration error:', error);
+    return { success: false, error: 'Gagal membatalkan pendaftaran.' };
+  }
+
+  revalidatePath('/admin/dashboard');
+  revalidatePath('/register');
+
+  return { success: true };
+}
