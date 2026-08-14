@@ -83,11 +83,9 @@ export default function LandingPageClient({ remainingSlots }: LandingPageClientP
 
           {/* CTA Button to Register Route */}
           <div>
-            <Link href="/register">
-              <NeonButton variant="primary" size="sm" className="font-bold text-xs">
-                Daftar Tim
-              </NeonButton>
-            </Link>
+            <NeonButton variant="primary" size="sm" className="font-bold text-xs" disabled>
+              Maintenance
+            </NeonButton>
           </div>
         </div>
       </header>
@@ -97,11 +95,9 @@ export default function LandingPageClient({ remainingSlots }: LandingPageClientP
 
       {/* Floating CTA for Mobile */}
       <div className="md:hidden fixed bottom-6 right-6 z-50">
-        <Link href="/register">
-          <NeonButton variant="primary" size="lg" className="shadow-lg font-bold">
-            Daftar Sekarang
-          </NeonButton>
-        </Link>
+        <NeonButton variant="primary" size="lg" className="shadow-lg font-bold" disabled>
+          Maintenance
+        </NeonButton>
       </div>
 
       {/* Landing Page Content Sections */}

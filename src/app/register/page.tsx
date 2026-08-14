@@ -1,5 +1,6 @@
 import { getRemainingSlots, getAvailableHeroTeams } from '@/lib/actions';
 import RegistrationPageClient from '../RegistrationPageClient';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,6 +10,8 @@ export const metadata = {
 };
 
 export default async function RegisterPage() {
+  redirect('/');
+
   const [remainingSlots, availableHeroTeams] = await Promise.all([
     getRemainingSlots(),
     getAvailableHeroTeams(),
