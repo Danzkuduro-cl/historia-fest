@@ -7,11 +7,13 @@ import toast from 'react-hot-toast';
 import {
   Search, Filter, Download, LogOut, RefreshCw,
   Trophy, Users, CheckCircle, Clock, Eye,
-  ChevronDown, Shield, Zap, Trash2, AlertTriangle
+  ChevronDown, Shield, Zap, Trash2, AlertTriangle, Plus, Pencil
 } from 'lucide-react';
 
 import AdminStatCard from '@/components/admin/AdminStatCard';
 import TeamDetailModal from '@/components/admin/TeamDetailModal';
+import TeamCreateModal from '@/components/admin/TeamCreateModal';
+import TeamEditModal from '@/components/admin/TeamEditModal';
 import NeonButton from '@/components/ui/NeonButton';
 import { adminLogout, updatePaymentStatus, deleteTeam } from '@/lib/admin-actions';
 import { formatCurrency, getPaymentStatusColor, getPaymentStatusLabel, formatDate } from '@/lib/utils';
@@ -49,12 +51,21 @@ interface Stats {
   maxSlots: number;
 }
 
+interface HeroTeam {
+  id: number;
+  hero: string;
+  team_name: string;
+  title: string;
+  desc: string;
+}
+
 interface AdminDashboardClientProps {
   teams: Team[];
   stats: Stats;
+  availableHeroTeams: HeroTeam[];
 }
 
-export default function AdminDashboardClient({ teams: initialTeams, stats }: AdminDashboardClientProps) {
+export default function AdminDashboardClient({ teams: initialTeams, stats, availableHeroTeams }: AdminDashboardClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState('');
@@ -63,6 +74,8 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Team | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
 
   const filtered = initialTeams.filter((team) => {
     const matchSearch =
@@ -134,6 +147,30 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
         <TeamDetailModal team={selectedTeam} onClose={() => setSelectedTeam(null)} />
       )}
 
+      {/* Create Modal */}
+      {showCreateModal && (
+        <TeamCreateModal
+          availableHeroTeams={availableHeroTeams}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => {
+            setShowCreateModal(false);
+            router.refresh();
+          }}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {editingTeam && (
+        <TeamEditModal
+          team={editingTeam}
+          onClose={() => setEditingTeam(null)}
+          onSuccess={() => {
+            setEditingTeam(null);
+            router.refresh();
+          }}
+        />
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -147,6 +184,14 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <NeonButton
+              variant="primary"
+              size="sm"
+              onClick={() => setShowCreateModal(true)}
+              icon={<Plus className="w-3.5 h-3.5" />}
+            >
+              <span className="hidden md:inline">Tambah Tim</span>
+            </NeonButton>
             <NeonButton
               variant="ghost"
               size="sm"
@@ -345,6 +390,13 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
                             Detail
                           </NeonButton>
                           <button
+                            onClick={() => setEditingTeam(team)}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all"
+                            title="Edit tim"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
                             onClick={() => setConfirmDelete(team)}
                             disabled={deletingId === team.id}
                             className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all disabled:opacity-40"
@@ -407,6 +459,13 @@ export default function AdminDashboardClient({ teams: initialTeams, stats }: Adm
                         <option value="expired">Kadaluarsa</option>
                       </select>
                       <NeonButton variant="secondary" size="sm" icon={<Eye className="w-3 h-3" />} onClick={() => setSelectedTeam(team)} />
+                      <button
+                        onClick={() => setEditingTeam(team)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all"
+                        title="Edit tim"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
                       <button
                         onClick={() => setConfirmDelete(team)}
                         disabled={deletingId === team.id}

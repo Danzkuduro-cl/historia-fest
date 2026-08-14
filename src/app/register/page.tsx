@@ -10,8 +10,6 @@ export const metadata = {
 };
 
 export default async function RegisterPage() {
-  redirect('/');
-
   const [remainingSlots, availableHeroTeams] = await Promise.all([
     getRemainingSlots(),
     getAvailableHeroTeams(),
