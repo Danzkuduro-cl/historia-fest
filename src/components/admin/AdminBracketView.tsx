@@ -146,18 +146,18 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
 
     const newMap: Record<string, string> = { ...bracketData };
 
-    // 5 BYEs in Round of 32 slots:
-    const byeSlots = ['r32_m1_p2', 'r32_m5_p2', 'r32_m8_p2', 'r32_m9_p2', 'r32_m13_p2'];
+    // 6 BYEs in Round of 32 slots (3 in Pool A, 3 in Pool B):
+    const byeSlots = ['r32_m1_p2', 'r32_m5_p2', 'r32_m8_p2', 'r32_m9_p2', 'r32_m13_p2', 'r32_m16_p2'];
     
     let teamIdx = 0;
-    // Assign 5 BYE teams
-    for (let i = 0; i < 5 && teamIdx < teamList.length; i++) {
+    // Assign 6 BYE teams
+    for (let i = 0; i < 6 && teamIdx < teamList.length; i++) {
       newMap[byeSlots[i]] = teamList[teamIdx];
       teamIdx++;
     }
 
-    // Remaining teams fill 27 matches in Round of 64
-    for (let m = 1; m <= 27 && teamIdx < teamList.length; m++) {
+    // Remaining teams fill 26 matches in Round of 64
+    for (let m = 1; m <= 26 && teamIdx < teamList.length; m++) {
       newMap[`r64_m${m}_p1`] = teamList[teamIdx++] || '';
       if (teamIdx < teamList.length) {
         newMap[`r64_m${m}_p2`] = teamList[teamIdx++] || '';
@@ -171,7 +171,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
   // Stats calculation
   const stats = useMemo(() => {
     let completedMatches = 0;
-    for (let i = 1; i <= 27; i++) {
+    for (let i = 1; i <= 26; i++) {
       if (bracketData[`r64_m${i}_s1`] && bracketData[`r64_m${i}_s2`]) completedMatches++;
     }
     for (let i = 1; i <= 16; i++) {
@@ -186,8 +186,8 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
     for (let i = 1; i <= 2; i++) {
       if (bracketData[`sf_m${i}_s1`] && bracketData[`sf_m${i}_s2`]) completedMatches++;
     }
-    if (bracketData['gf_s1'] && bracketData['gf_s2']) completedMatches++;
-    if (bracketData['bronze_s1'] && bracketData['bronze_s2']) completedMatches++;
+    if (bracketData['final_m1_s1'] && bracketData['final_m1_s2']) completedMatches++;
+    if (bracketData['bronze_m1_s1'] && bracketData['bronze_m1_s2']) completedMatches++;
 
     return {
       completedMatches,
@@ -217,10 +217,10 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
       11: 'r32_m7_p1', 12: 'r32_m7_p2', 13: 'r32_m8_p1',
       14: 'r32_m9_p1', 15: 'r32_m10_p1', 16: 'r32_m10_p2', 17: 'r32_m11_p1', 18: 'r32_m11_p2',
       19: 'r32_m12_p1', 20: 'r32_m12_p2', 21: 'r32_m13_p1', 22: 'r32_m14_p1', 23: 'r32_m14_p2',
-      24: 'r32_m15_p1', 25: 'r32_m15_p2', 26: 'r32_m16_p1', 27: 'r32_m16_p2'
+      24: 'r32_m15_p1', 25: 'r32_m15_p2', 26: 'r32_m16_p1'
     };
 
-    for (let m = 1; m <= 27; m++) {
+    for (let m = 1; m <= 26; m++) {
       list.push({
         id: `r64_m${m}`,
         label: `Match ${m}`,
@@ -236,10 +236,10 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
 
     for (let m = 1; m <= 16; m++) {
       const r16Target = `r16_m${Math.ceil(m / 2)}_p${m % 2 === 1 ? '1' : '2'}`;
-      const isBye = m === 1 || m === 5 || m === 8 || m === 9 || m === 13;
+      const isBye = m === 1 || m === 5 || m === 8 || m === 9 || m === 13 || m === 16;
       list.push({
         id: `r32_m${m}`,
-        label: `Match ${27 + m}`,
+        label: `Match ${26 + m}`,
         round: 'Babak 32 Besar',
         session: m <= 8 ? 'Sesi 1 (Pool A - Pagi)' : 'Sesi 2 (Pool B - Siang)',
         p1Key: `r32_m${m}_p1`,
@@ -255,9 +255,9 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
       const qfTarget = `qf_m${Math.ceil(m / 2)}_p${m % 2 === 1 ? '1' : '2'}`;
       list.push({
         id: `r16_m${m}`,
-        label: `Match ${43 + m}`,
+        label: `Match ${42 + m}`,
         round: 'Babak 16 Besar',
-        session: m <= 4 ? 'Pool A (Pagi/Siang)' : 'Pool B (Siang/Sore)',
+        session: m <= 4 ? 'Pool A (Pagi)' : 'Pool B (Siang)',
         p1Key: `r16_m${m}_p1`,
         p2Key: `r16_m${m}_p2`,
         s1Key: `r16_m${m}_s1`,
@@ -270,9 +270,9 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
       const sfTarget = `sf_m${Math.ceil(m / 2)}_p${m % 2 === 1 ? '1' : '2'}`;
       list.push({
         id: `qf_m${m}`,
-        label: `Perempat Final ${m} (Match ${51 + m})`,
-        round: '8 Besar (Perempat Final)',
-        session: 'Babak Utama (Sore)',
+        label: `Match ${50 + m}`,
+        round: 'Perempat Final',
+        session: 'Sesi Malam',
         p1Key: `qf_m${m}_p1`,
         p2Key: `qf_m${m}_p2`,
         s1Key: `qf_m${m}_s1`,
@@ -281,46 +281,58 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
       });
     }
 
-    for (let m = 1; m <= 2; m++) {
-      list.push({
-        id: `sf_m${m}`,
-        label: `Semifinal ${m} (Match ${55 + m})`,
-        round: 'Semifinal (4 Besar)',
-        session: 'Babak Utama (Malam)',
-        p1Key: `sf_m${m}_p1`,
-        p2Key: `sf_m${m}_p2`,
-        s1Key: `sf_m${m}_s1`,
-        s2Key: `sf_m${m}_s2`,
-        targetP1: `gf_p${m}`,
-      });
-    }
-
+    // Semifinals
     list.push({
-      id: 'bronze_m',
-      label: 'Perebutan Juara 3 (Match 58)',
-      round: 'Perebutan Juara 3',
-      session: 'Hari 1 (Malam)',
-      p1Key: 'bronze_p1',
-      p2Key: 'bronze_p2',
-      s1Key: 'bronze_s1',
-      s2Key: 'bronze_s2',
-      targetP1: 'podium_3',
+      id: 'sf_m1',
+      label: 'Match 55',
+      round: 'Semifinal 1',
+      session: 'Sesi Malam',
+      p1Key: 'sf_m1_p1',
+      p2Key: 'sf_m1_p2',
+      s1Key: 'sf_m1_s1',
+      s2Key: 'sf_m1_s2',
+      targetP1: 'final_m1_p1',
+    });
+    list.push({
+      id: 'sf_m2',
+      label: 'Match 56',
+      round: 'Semifinal 2',
+      session: 'Sesi Malam',
+      p1Key: 'sf_m2_p1',
+      p2Key: 'sf_m2_p2',
+      s1Key: 'sf_m2_s1',
+      s2Key: 'sf_m2_s2',
+      targetP1: 'final_m1_p2',
     });
 
+    // Bronze Match (Perebutan Juara 3)
     list.push({
-      id: 'gf_m',
-      label: '👑 GRAND FINAL MLBB (BO5)',
-      round: 'Grand Final',
-      session: 'Hari 2 (Panggung Utama)',
-      p1Key: 'gf_p1',
-      p2Key: 'gf_p2',
-      s1Key: 'gf_s1',
-      s2Key: 'gf_s2',
-      targetP1: 'podium_1',
+      id: 'bronze_m1',
+      label: 'Match 57',
+      round: 'Perebutan Juara 3',
+      session: 'Sesi Malam',
+      p1Key: 'bronze_m1_p1',
+      p2Key: 'bronze_m1_p2',
+      s1Key: 'bronze_m1_s1',
+      s2Key: 'bronze_m1_s2',
+      targetP1: 'champion_3',
+    });
+
+    // Grand Final
+    list.push({
+      id: 'final_m1',
+      label: 'Match 58',
+      round: 'GRAND FINAL',
+      session: 'Puncak Acara',
+      p1Key: 'final_m1_p1',
+      p2Key: 'final_m1_p2',
+      s1Key: 'final_m1_s1',
+      s2Key: 'final_m1_s2',
+      targetP1: 'champion_1',
     });
 
     return list;
-  }, []);
+  }, [bracketData]);
 
   const filteredMatches = useMemo(() => {
     if (!searchQuery) return allMatchesList;
@@ -829,7 +841,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 1, target: 'r32_m1_p1' }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 1', slotKey: 'r32_m1_p2' }}
-                r32Match={{ num: 28, p1Key: 'r32_m1_p1', p2Key: 'r32_m1_p2', s1Key: 'r32_m1_s1', s2Key: 'r32_m1_s2', label: 'M28 (R32-1)' }}
+                r32Match={{ num: 27, p1Key: 'r32_m1_p1', p2Key: 'r32_m1_p2', s1Key: 'r32_m1_s1', s2Key: 'r32_m1_s2', label: 'M27 (R32-1)' }}
                 r32TargetKey="r16_m1_p1"
                 isBye={true}
               />
@@ -838,16 +850,16 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 2, target: 'r32_m2_p1' }}
                 bottomItem={{ type: 'match', num: 3, target: 'r32_m2_p2' }}
-                r32Match={{ num: 29, p1Key: 'r32_m2_p1', p2Key: 'r32_m2_p2', s1Key: 'r32_m2_s1', s2Key: 'r32_m2_s2', label: 'M29 (R32-2)' }}
+                r32Match={{ num: 28, p1Key: 'r32_m2_p1', p2Key: 'r32_m2_p2', s1Key: 'r32_m2_s1', s2Key: 'r32_m2_s2', label: 'M28 (R32-2)' }}
                 r32TargetKey="r16_m1_p2"
               />
             }
-            r16TopMatch={{ num: 44, p1Key: 'r16_m1_p1', p2Key: 'r16_m1_p2', s1Key: 'r16_m1_s1', s2Key: 'r16_m1_s2' }}
+            r16TopMatch={{ num: 43, p1Key: 'r16_m1_p1', p2Key: 'r16_m1_p2', s1Key: 'r16_m1_s1', s2Key: 'r16_m1_s2' }}
             r32Block3={
               <R32PairBlock
                 topMatch={{ num: 4, target: 'r32_m3_p1' }}
                 bottomItem={{ type: 'match', num: 5, target: 'r32_m3_p2' }}
-                r32Match={{ num: 30, p1Key: 'r32_m3_p1', p2Key: 'r32_m3_p2', s1Key: 'r32_m3_s1', s2Key: 'r32_m3_s2', label: 'M30 (R32-3)' }}
+                r32Match={{ num: 29, p1Key: 'r32_m3_p1', p2Key: 'r32_m3_p2', s1Key: 'r32_m3_s1', s2Key: 'r32_m3_s2', label: 'M29 (R32-3)' }}
                 r32TargetKey="r16_m2_p1"
               />
             }
@@ -855,11 +867,11 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 6, target: 'r32_m4_p1' }}
                 bottomItem={{ type: 'match', num: 7, target: 'r32_m4_p2' }}
-                r32Match={{ num: 31, p1Key: 'r32_m4_p1', p2Key: 'r32_m4_p2', s1Key: 'r32_m4_s1', s2Key: 'r32_m4_s2', label: 'M31 (R32-4)' }}
+                r32Match={{ num: 30, p1Key: 'r32_m4_p1', p2Key: 'r32_m4_p2', s1Key: 'r32_m4_s1', s2Key: 'r32_m4_s2', label: 'M30 (R32-4)' }}
                 r32TargetKey="r16_m2_p2"
               />
             }
-            r16BottomMatch={{ num: 45, p1Key: 'r16_m2_p1', p2Key: 'r16_m2_p2', s1Key: 'r16_m2_s1', s2Key: 'r16_m2_s2' }}
+            r16BottomMatch={{ num: 44, p1Key: 'r16_m2_p1', p2Key: 'r16_m2_p2', s1Key: 'r16_m2_s1', s2Key: 'r16_m2_s2' }}
             qfMatch={{ num: 1, p1Key: 'qf_m1_p1', p2Key: 'qf_m1_p2', s1Key: 'qf_m1_s1', s2Key: 'qf_m1_s2' }}
           />
 
@@ -872,7 +884,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 8, target: 'r32_m5_p1' }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 2', slotKey: 'r32_m5_p2' }}
-                r32Match={{ num: 32, p1Key: 'r32_m5_p1', p2Key: 'r32_m5_p2', s1Key: 'r32_m5_s1', s2Key: 'r32_m5_s2', label: 'M32 (R32-5)' }}
+                r32Match={{ num: 31, p1Key: 'r32_m5_p1', p2Key: 'r32_m5_p2', s1Key: 'r32_m5_s1', s2Key: 'r32_m5_s2', label: 'M31 (R32-5)' }}
                 r32TargetKey="r16_m3_p1"
                 isBye={true}
               />
@@ -881,16 +893,16 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 9, target: 'r32_m6_p1' }}
                 bottomItem={{ type: 'match', num: 10, target: 'r32_m6_p2' }}
-                r32Match={{ num: 33, p1Key: 'r32_m6_p1', p2Key: 'r32_m6_p2', s1Key: 'r32_m6_s1', s2Key: 'r32_m6_s2', label: 'M33 (R32-6)' }}
+                r32Match={{ num: 32, p1Key: 'r32_m6_p1', p2Key: 'r32_m6_p2', s1Key: 'r32_m6_s1', s2Key: 'r32_m6_s2', label: 'M32 (R32-6)' }}
                 r32TargetKey="r16_m3_p2"
               />
             }
-            r16TopMatch={{ num: 46, p1Key: 'r16_m3_p1', p2Key: 'r16_m3_p2', s1Key: 'r16_m3_s1', s2Key: 'r16_m3_s2' }}
+            r16TopMatch={{ num: 45, p1Key: 'r16_m3_p1', p2Key: 'r16_m3_p2', s1Key: 'r16_m3_s1', s2Key: 'r16_m3_s2' }}
             r32Block3={
               <R32PairBlock
                 topMatch={{ num: 11, target: 'r32_m7_p1' }}
                 bottomItem={{ type: 'match', num: 12, target: 'r32_m7_p2' }}
-                r32Match={{ num: 34, p1Key: 'r32_m7_p1', p2Key: 'r32_m7_p2', s1Key: 'r32_m7_s1', s2Key: 'r32_m7_s2', label: 'M34 (R32-7)' }}
+                r32Match={{ num: 33, p1Key: 'r32_m7_p1', p2Key: 'r32_m7_p2', s1Key: 'r32_m7_s1', s2Key: 'r32_m7_s2', label: 'M33 (R32-7)' }}
                 r32TargetKey="r16_m4_p1"
               />
             }
@@ -898,12 +910,12 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 13, target: 'r32_m8_p1' }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 3', slotKey: 'r32_m8_p2' }}
-                r32Match={{ num: 35, p1Key: 'r32_m8_p1', p2Key: 'r32_m8_p2', s1Key: 'r32_m8_s1', s2Key: 'r32_m8_s2', label: 'M35 (R32-8)' }}
+                r32Match={{ num: 34, p1Key: 'r32_m8_p1', p2Key: 'r32_m8_p2', s1Key: 'r32_m8_s1', s2Key: 'r32_m8_s2', label: 'M34 (R32-8)' }}
                 r32TargetKey="r16_m4_p2"
                 isBye={true}
               />
             }
-            r16BottomMatch={{ num: 47, p1Key: 'r16_m4_p1', p2Key: 'r16_m4_p2', s1Key: 'r16_m4_s1', s2Key: 'r16_m4_s2' }}
+            r16BottomMatch={{ num: 46, p1Key: 'r16_m4_p1', p2Key: 'r16_m4_p2', s1Key: 'r16_m4_s1', s2Key: 'r16_m4_s2' }}
             qfMatch={{ num: 2, p1Key: 'qf_m2_p1', p2Key: 'qf_m2_p2', s1Key: 'qf_m2_s1', s2Key: 'qf_m2_s2' }}
           />
 
@@ -919,8 +931,8 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
             <div className="flex items-center gap-3">
               <Sunset className="w-6 h-6 text-orange-400" />
               <div>
-                <h3 className="font-display font-bold text-base">SESI 2: POOL B (SESI SIANG/SORE)</h3>
-                <p className="text-xs text-slate-300">30 Tim · Match 14 s/d 27 di R64 · 2 Tim BYE · Sejajar Presisi ke QF 3 & QF 4</p>
+                <h3 className="font-display font-bold text-base">SESI 2: POOL B (SESI SIANG)</h3>
+                <p className="text-xs text-slate-300">29 Tim · Match 14 s/d 26 di R64 · 3 Tim BYE · Sejajar Presisi ke QF 3 & QF 4</p>
               </div>
             </div>
             <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">Sesi Siang</span>
@@ -935,7 +947,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 14, target: 'r32_m9_p1' }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 4', slotKey: 'r32_m9_p2' }}
-                r32Match={{ num: 36, p1Key: 'r32_m9_p1', p2Key: 'r32_m9_p2', s1Key: 'r32_m9_s1', s2Key: 'r32_m9_s2', label: 'M36 (R32-9)' }}
+                r32Match={{ num: 35, p1Key: 'r32_m9_p1', p2Key: 'r32_m9_p2', s1Key: 'r32_m9_s1', s2Key: 'r32_m9_s2', label: 'M35 (R32-9)' }}
                 r32TargetKey="r16_m5_p1"
                 isBye={true}
               />
@@ -944,16 +956,16 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 15, target: 'r32_m10_p1' }}
                 bottomItem={{ type: 'match', num: 16, target: 'r32_m10_p2' }}
-                r32Match={{ num: 37, p1Key: 'r32_m10_p1', p2Key: 'r32_m10_p2', s1Key: 'r32_m10_s1', s2Key: 'r32_m10_s2', label: 'M37 (R32-10)' }}
+                r32Match={{ num: 36, p1Key: 'r32_m10_p1', p2Key: 'r32_m10_p2', s1Key: 'r32_m10_s1', s2Key: 'r32_m10_s2', label: 'M36 (R32-10)' }}
                 r32TargetKey="r16_m5_p2"
               />
             }
-            r16TopMatch={{ num: 48, p1Key: 'r16_m5_p1', p2Key: 'r16_m5_p2', s1Key: 'r16_m5_s1', s2Key: 'r16_m5_s2' }}
+            r16TopMatch={{ num: 47, p1Key: 'r16_m5_p1', p2Key: 'r16_m5_p2', s1Key: 'r16_m5_s1', s2Key: 'r16_m5_s2' }}
             r32Block3={
               <R32PairBlock
                 topMatch={{ num: 17, target: 'r32_m11_p1' }}
                 bottomItem={{ type: 'match', num: 18, target: 'r32_m11_p2' }}
-                r32Match={{ num: 38, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M38 (R32-11)' }}
+                r32Match={{ num: 37, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M37 (R32-11)' }}
                 r32TargetKey="r16_m6_p1"
               />
             }
@@ -961,11 +973,11 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 19, target: 'r32_m12_p1' }}
                 bottomItem={{ type: 'match', num: 20, target: 'r32_m12_p2' }}
-                r32Match={{ num: 39, p1Key: 'r32_m12_p1', p2Key: 'r32_m12_p2', s1Key: 'r32_m12_s1', s2Key: 'r32_m12_s2', label: 'M39 (R32-12)' }}
+                r32Match={{ num: 38, p1Key: 'r32_m12_p1', p2Key: 'r32_m12_p2', s1Key: 'r32_m12_s1', s2Key: 'r32_m12_s2', label: 'M38 (R32-12)' }}
                 r32TargetKey="r16_m6_p2"
               />
             }
-            r16BottomMatch={{ num: 49, p1Key: 'r16_m6_p1', p2Key: 'r16_m6_p2', s1Key: 'r16_m6_s1', s2Key: 'r16_m6_s2' }}
+            r16BottomMatch={{ num: 48, p1Key: 'r16_m6_p1', p2Key: 'r16_m6_p2', s1Key: 'r16_m6_s1', s2Key: 'r16_m6_s2' }}
             qfMatch={{ num: 3, p1Key: 'qf_m3_p1', p2Key: 'qf_m3_p2', s1Key: 'qf_m3_s1', s2Key: 'qf_m3_s2' }}
           />
 
@@ -978,7 +990,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 21, target: 'r32_m13_p1' }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 5', slotKey: 'r32_m13_p2' }}
-                r32Match={{ num: 40, p1Key: 'r32_m13_p1', p2Key: 'r32_m13_p2', s1Key: 'r32_m13_s1', s2Key: 'r32_m13_s2', label: 'M40 (R32-13)' }}
+                r32Match={{ num: 39, p1Key: 'r32_m13_p1', p2Key: 'r32_m13_p2', s1Key: 'r32_m13_s1', s2Key: 'r32_m13_s2', label: 'M39 (R32-13)' }}
                 r32TargetKey="r16_m7_p1"
                 isBye={true}
               />
@@ -987,28 +999,29 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
               <R32PairBlock
                 topMatch={{ num: 22, target: 'r32_m14_p1' }}
                 bottomItem={{ type: 'match', num: 23, target: 'r32_m14_p2' }}
-                r32Match={{ num: 41, p1Key: 'r32_m14_p1', p2Key: 'r32_m14_p2', s1Key: 'r32_m14_s1', s2Key: 'r32_m14_s2', label: 'M41 (R32-14)' }}
+                r32Match={{ num: 40, p1Key: 'r32_m14_p1', p2Key: 'r32_m14_p2', s1Key: 'r32_m14_s1', s2Key: 'r32_m14_s2', label: 'M40 (R32-14)' }}
                 r32TargetKey="r16_m7_p2"
               />
             }
-            r16TopMatch={{ num: 50, p1Key: 'r16_m7_p1', p2Key: 'r16_m7_p2', s1Key: 'r16_m7_s1', s2Key: 'r16_m7_s2' }}
+            r16TopMatch={{ num: 49, p1Key: 'r16_m7_p1', p2Key: 'r16_m7_p2', s1Key: 'r16_m7_s1', s2Key: 'r16_m7_s2' }}
             r32Block3={
               <R32PairBlock
                 topMatch={{ num: 24, target: 'r32_m15_p1' }}
                 bottomItem={{ type: 'match', num: 25, target: 'r32_m15_p2' }}
-                r32Match={{ num: 42, p1Key: 'r32_m15_p1', p2Key: 'r32_m15_p2', s1Key: 'r32_m15_s1', s2Key: 'r32_m15_s2', label: 'M42 (R32-15)' }}
+                r32Match={{ num: 41, p1Key: 'r32_m15_p1', p2Key: 'r32_m15_p2', s1Key: 'r32_m15_s1', s2Key: 'r32_m15_s2', label: 'M41 (R32-15)' }}
                 r32TargetKey="r16_m8_p1"
               />
             }
             r32Block4={
               <R32PairBlock
                 topMatch={{ num: 26, target: 'r32_m16_p1' }}
-                bottomItem={{ type: 'match', num: 27, target: 'r32_m16_p2' }}
-                r32Match={{ num: 43, p1Key: 'r32_m16_p1', p2Key: 'r32_m16_p2', s1Key: 'r32_m16_s1', s2Key: 'r32_m16_s2', label: 'M43 (R32-16)' }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot 6', slotKey: 'r32_m16_p2' }}
+                r32Match={{ num: 42, p1Key: 'r32_m16_p1', p2Key: 'r32_m16_p2', s1Key: 'r32_m16_s1', s2Key: 'r32_m16_s2', label: 'M42 (R32-16)' }}
                 r32TargetKey="r16_m8_p2"
+                isBye={true}
               />
             }
-            r16BottomMatch={{ num: 51, p1Key: 'r16_m8_p1', p2Key: 'r16_m8_p2', s1Key: 'r16_m8_s1', s2Key: 'r16_m8_s2' }}
+            r16BottomMatch={{ num: 50, p1Key: 'r16_m8_p1', p2Key: 'r16_m8_p2', s1Key: 'r16_m8_s1', s2Key: 'r16_m8_s2' }}
             qfMatch={{ num: 4, p1Key: 'qf_m4_p1', p2Key: 'qf_m4_p2', s1Key: 'qf_m4_s1', s2Key: 'qf_m4_s2' }}
           />
 
@@ -1034,7 +1047,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
                   return (
                     <MatchCard
                       key={`admin-finals-qf-${m}`}
-                      matchLabel={`QF ${m} (Match ${51 + m})`}
+                      matchLabel={`QF ${m} (Match ${50 + m})`}
                       p1Key={`qf_m${m}_p1`}
                       p2Key={`qf_m${m}_p2`}
                       s1Key={`qf_m${m}_s1`}

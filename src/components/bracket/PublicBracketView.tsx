@@ -53,7 +53,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
     isBye = false,
     byeText = "★ BYE (Lolos Otomatis)",
     stageName,
-    matchTime,
   }: {
     matchLabel: string;
     p1Key: string;
@@ -63,12 +62,11 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
     isBye?: boolean;
     byeText?: string;
     stageName?: string;
-    matchTime?: string;
   }) => {
-    const p1Name = bracketData[p1Key]?.trim();
-    const p2Name = bracketData[p2Key]?.trim();
-    const s1 = s1Key ? bracketData[s1Key]?.trim() : '';
-    const s2 = s2Key ? bracketData[s2Key]?.trim() : '';
+    const p1Name = (bracketData[p1Key] || (p1Key === 'final_m1_p1' ? bracketData['gf_p1'] : p1Key === 'bronze_m1_p1' ? bracketData['bronze_p1'] : ''))?.trim();
+    const p2Name = (bracketData[p2Key] || (p2Key === 'final_m1_p2' ? bracketData['gf_p2'] : p2Key === 'bronze_m1_p2' ? bracketData['bronze_p2'] : ''))?.trim();
+    const s1 = (s1Key ? (bracketData[s1Key] || (s1Key === 'final_m1_s1' ? bracketData['gf_s1'] : s1Key === 'bronze_m1_s1' ? bracketData['bronze_s1'] : '')) : '')?.trim();
+    const s2 = (s2Key ? (bracketData[s2Key] || (s2Key === 'final_m1_s2' ? bracketData['gf_s2'] : s2Key === 'bronze_m1_s2' ? bracketData['bronze_s2'] : '')) : '')?.trim();
 
     const hasScore = s1 !== '' && s2 !== '';
     const s1Num = parseInt(s1, 10);
@@ -95,10 +93,9 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
             <span className="font-bold tracking-tight text-white">{matchLabel}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-            {matchTime && <span>{matchTime}</span>}
-            <span className="bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded font-sans">{stageName || 'BO3'}</span>
-          </div>
+          <span className="bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded font-sans text-[10px]">
+            {stageName || 'BO3'}
+          </span>
         </div>
 
         {/* Team 1 Row */}
@@ -167,7 +164,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
     );
   };
 
-  // Modern Clean BYE Card (Same dimensions as MatchCard for pixel alignment)
+  // Modern Clean BYE Card
   const ReadOnlyByeCard = ({
     byeLabel,
     slotKey,
@@ -209,9 +206,9 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
     r32Match,
     isBye = false,
   }: {
-    topMatch: { num: number; time?: string };
-    bottomItem: { type: 'match'; num: number; time?: string } | { type: 'bye'; label: string; slotKey: string };
-    r32Match: { num: number; p1Key: string; p2Key: string; s1Key: string; s2Key: string; label: string; time?: string };
+    topMatch: { num: number };
+    bottomItem: { type: 'match'; num: number } | { type: 'bye'; label: string; slotKey: string };
+    r32Match: { num: number; p1Key: string; p2Key: string; s1Key: string; s2Key: string; label: string };
     isBye?: boolean;
   }) => {
     return (
@@ -225,7 +222,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             s1Key={`r64_m${topMatch.num}_s1`}
             s2Key={`r64_m${topMatch.num}_s2`}
             stageName="R64"
-            matchTime={topMatch.time}
           />
 
           {bottomItem.type === 'match' ? (
@@ -236,7 +232,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               s1Key={`r64_m${bottomItem.num}_s1`}
               s2Key={`r64_m${bottomItem.num}_s2`}
               stageName="R64"
-              matchTime={bottomItem.time}
             />
           ) : (
             <ReadOnlyByeCard
@@ -254,7 +249,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
           </div>
         </div>
 
-        {/* Right Side: R32 Match Card (Precisely centered) */}
+        {/* Right Side: R32 Match Card */}
         <ReadOnlyMatchCard
           matchLabel={r32Match.label}
           p1Key={r32Match.p1Key}
@@ -263,7 +258,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
           s2Key={r32Match.s2Key}
           isBye={isBye}
           stageName="R32"
-          matchTime={r32Match.time}
           byeText="★ BYE (Lolos Langsung)"
         />
       </div>
@@ -394,13 +388,13 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             </div>
           </div>
 
-          {/* Level 4: QF Match (Perempat Final) */}
+          {/* Level 4: QF Match */}
           <div className="space-y-2 shrink-0">
             <div className="bg-red-800 text-white py-1 px-3 rounded-xl text-center shadow-xs">
               <span className="font-display font-bold text-xs uppercase tracking-tight">Perempat Final {qfMatch.num}</span>
             </div>
             <ReadOnlyMatchCard
-              matchLabel={`QF ${qfMatch.num} (Match ${51 + qfMatch.num})`}
+              matchLabel={`QF ${qfMatch.num} (Match ${50 + qfMatch.num})`}
               p1Key={qfMatch.p1Key}
               p2Key={qfMatch.p2Key}
               s1Key={qfMatch.s1Key}
@@ -421,14 +415,13 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
   const allMatchesList = useMemo(() => {
     const list = [];
 
-    // Match 1 - 27 (R64)
-    for (let i = 1; i <= 27; i++) {
+    // Match 1 - 26 (R64 - 26 Matches for 58 Teams / 6 BYEs)
+    for (let i = 1; i <= 26; i++) {
       const isPoolA = i <= 13;
       list.push({
         num: i,
         stage: 'Babak 64 Besar',
         session: isPoolA ? 'Sesi 1: Pool A (Pagi)' : 'Sesi 2: Pool B (Siang)',
-        time: isPoolA ? '10.00 - 12.30 WIB' : '13.15 - 15.30 WIB',
         p1: bracketData[`r64_m${i}_p1`] || '',
         p2: bracketData[`r64_m${i}_p2`] || '',
         s1: bracketData[`r64_m${i}_s1`] || '',
@@ -436,14 +429,13 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
       });
     }
 
-    // Match 28 - 43 (R32)
+    // Match 27 - 42 (R32 - 16 Matches)
     for (let i = 1; i <= 16; i++) {
       const isPoolA = i <= 8;
       list.push({
-        num: 27 + i,
+        num: 26 + i,
         stage: 'Babak 32 Besar',
         session: isPoolA ? 'Sesi 1: Pool A (Pagi)' : 'Sesi 2: Pool B (Siang)',
-        time: isPoolA ? '12.30 - 14.30 WIB' : '15.30 - 17.00 WIB',
         p1: bracketData[`r32_m${i}_p1`] || '',
         p2: bracketData[`r32_m${i}_p2`] || '',
         s1: bracketData[`r32_m${i}_s1`] || '',
@@ -451,14 +443,13 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
       });
     }
 
-    // Match 44 - 51 (R16)
+    // Match 43 - 50 (R16 - 8 Matches)
     for (let i = 1; i <= 8; i++) {
       const isPoolA = i <= 4;
       list.push({
-        num: 43 + i,
+        num: 42 + i,
         stage: 'Babak 16 Besar',
-        session: isPoolA ? 'Sesi 1: Pool A (Pagi/Siang)' : 'Sesi 2: Pool B (Sore)',
-        time: isPoolA ? '14.00 - 15.30 WIB' : '16.30 - 18.00 WIB',
+        session: isPoolA ? 'Sesi 1: Pool A (Pagi)' : 'Sesi 2: Pool B (Siang)',
         p1: bracketData[`r16_m${i}_p1`] || '',
         p2: bracketData[`r16_m${i}_p2`] || '',
         s1: bracketData[`r16_m${i}_s1`] || '',
@@ -466,13 +457,12 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
       });
     }
 
-    // Match 52 - 55 (QF)
+    // Match 51 - 54 (QF - 4 Matches)
     for (let i = 1; i <= 4; i++) {
       list.push({
-        num: 51 + i,
+        num: 50 + i,
         stage: 'Perempat Final (8 Besar)',
         session: 'Sesi Malam',
-        time: '18.30 - 19.30 WIB',
         p1: bracketData[`qf_m${i}_p1`] || '',
         p2: bracketData[`qf_m${i}_p2`] || '',
         s1: bracketData[`qf_m${i}_s1`] || '',
@@ -480,46 +470,42 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
       });
     }
 
-    // Match 56 & 57 (Semifinals)
+    // Match 55 & 56 (Semifinals)
     list.push({
-      num: 56,
+      num: 55,
       stage: 'Semifinal 1',
       session: 'Sesi Malam',
-      time: '19.45 - 20.45 WIB',
       p1: bracketData['sf_m1_p1'] || '',
       p2: bracketData['sf_m1_p2'] || '',
       s1: bracketData['sf_m1_s1'] || '',
       s2: bracketData['sf_m1_s2'] || '',
     });
     list.push({
-      num: 57,
+      num: 56,
       stage: 'Semifinal 2',
       session: 'Sesi Malam',
-      time: '19.45 - 20.45 WIB',
       p1: bracketData['sf_m2_p1'] || '',
       p2: bracketData['sf_m2_p2'] || '',
       s1: bracketData['sf_m2_s1'] || '',
       s2: bracketData['sf_m2_s2'] || '',
     });
 
-    // Match 58 (Perebutan Juara 3)
+    // Match 57 (Perebutan Juara 3)
     list.push({
-      num: 58,
+      num: 57,
       stage: 'Perebutan Juara 3',
       session: 'Sesi Malam',
-      time: '20.45 - 21.30 WIB',
       p1: bracketData['bronze_m1_p1'] || '',
       p2: bracketData['bronze_m1_p2'] || '',
       s1: bracketData['bronze_m1_s1'] || '',
       s2: bracketData['bronze_m1_s2'] || '',
     });
 
-    // Match 59 (Grand Final)
+    // Match 58 (Grand Final)
     list.push({
-      num: 59,
+      num: 58,
       stage: 'GRAND FINAL (BO5)',
       session: 'Puncak Acara',
-      time: '21.30 - 23.00 WIB',
       p1: bracketData['final_m1_p1'] || '',
       p2: bracketData['final_m1_p2'] || '',
       s1: bracketData['final_m1_s1'] || '',
@@ -554,14 +540,14 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 Official Bracket
               </span>
               <span className="text-xs font-mono text-slate-300">
-                59 Tim Terdaftar · 5 Slot BYE
+                58 Tim Terdaftar · 6 Slot BYE
               </span>
             </div>
             <h2 className="font-display font-extrabold text-2xl md:text-3xl tracking-tight text-white">
-              Bagan & Jadwal Pertandingan Turnamen
+              Bagan Pertandingan Turnamen (58 Tim)
             </h2>
             <p className="text-xs md:text-sm text-slate-300 font-body leading-relaxed">
-              Pertandingan dibagi menjadi 2 sesi penyisihan (Sesi 1 Pool A & Sesi 2 Pool B) menuju Babak 8 Besar dan Grand Final.
+              Pertandingan dibagi seimbang ke 2 sesi penyisihan (Pool A & Pool B: masing-masing 29 tim & 3 BYE) menuju Babak 8 Besar dan Grand Final.
             </p>
           </div>
 
@@ -591,7 +577,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             )}
           >
             <Sun className="w-3.5 h-3.5 text-amber-300" />
-            <span>Sesi 1: Pool A (Pagi)</span>
+            <span>Sesi 1: Pool A (Pagi - 29 Tim)</span>
           </button>
 
           <button
@@ -604,7 +590,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             )}
           >
             <Sunset className="w-3.5 h-3.5 text-orange-400" />
-            <span>Sesi 2: Pool B (Siang)</span>
+            <span>Sesi 2: Pool B (Siang - 29 Tim)</span>
           </button>
 
           <button
@@ -661,7 +647,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
       )}
 
       {/* =========================================================================
-          VIEW MODE 1: POOL A (SESI 1 - PAGI)
+          VIEW MODE 1: POOL A (SESI 1 - PAGI - 29 TIM / 3 BYE)
          ========================================================================= */}
       {viewMode === 'poolA' && !searchQuery.trim() && (
         <div className="space-y-6">
@@ -684,7 +670,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 1 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 1', slotKey: 'r32_m1_p2' }}
-                r32Match={{ num: 28, p1Key: 'r32_m1_p1', p2Key: 'r32_m1_p2', s1Key: 'r32_m1_s1', s2Key: 'r32_m1_s2', label: 'M28 (R32-1)' }}
+                r32Match={{ num: 27, p1Key: 'r32_m1_p1', p2Key: 'r32_m1_p2', s1Key: 'r32_m1_s1', s2Key: 'r32_m1_s2', label: 'M27 (R32-1)' }}
                 isBye={true}
               />
             }
@@ -692,25 +678,25 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 2 }}
                 bottomItem={{ type: 'match', num: 3 }}
-                r32Match={{ num: 29, p1Key: 'r32_m2_p1', p2Key: 'r32_m2_p2', s1Key: 'r32_m2_s1', s2Key: 'r32_m2_s2', label: 'M29 (R32-2)' }}
+                r32Match={{ num: 28, p1Key: 'r32_m2_p1', p2Key: 'r32_m2_p2', s1Key: 'r32_m2_s1', s2Key: 'r32_m2_s2', label: 'M28 (R32-2)' }}
               />
             }
-            r16TopMatch={{ num: 44, p1Key: 'r16_m1_p1', p2Key: 'r16_m1_p2', s1Key: 'r16_m1_s1', s2Key: 'r16_m1_s2' }}
+            r16TopMatch={{ num: 43, p1Key: 'r16_m1_p1', p2Key: 'r16_m1_p2', s1Key: 'r16_m1_s1', s2Key: 'r16_m1_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 4 }}
                 bottomItem={{ type: 'match', num: 5 }}
-                r32Match={{ num: 30, p1Key: 'r32_m3_p1', p2Key: 'r32_m3_p2', s1Key: 'r32_m3_s1', s2Key: 'r32_m3_s2', label: 'M30 (R32-3)' }}
+                r32Match={{ num: 29, p1Key: 'r32_m3_p1', p2Key: 'r32_m3_p2', s1Key: 'r32_m3_s1', s2Key: 'r32_m3_s2', label: 'M29 (R32-3)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 6 }}
                 bottomItem={{ type: 'match', num: 7 }}
-                r32Match={{ num: 31, p1Key: 'r32_m4_p1', p2Key: 'r32_m4_p2', s1Key: 'r32_m4_s1', s2Key: 'r32_m4_s2', label: 'M31 (R32-4)' }}
+                r32Match={{ num: 30, p1Key: 'r32_m4_p1', p2Key: 'r32_m4_p2', s1Key: 'r32_m4_s1', s2Key: 'r32_m4_s2', label: 'M30 (R32-4)' }}
               />
             }
-            r16BottomMatch={{ num: 45, p1Key: 'r16_m2_p1', p2Key: 'r16_m2_p2', s1Key: 'r16_m2_s1', s2Key: 'r16_m2_s2' }}
+            r16BottomMatch={{ num: 44, p1Key: 'r16_m2_p1', p2Key: 'r16_m2_p2', s1Key: 'r16_m2_s1', s2Key: 'r16_m2_s2' }}
             qfMatch={{ num: 1, p1Key: 'qf_m1_p1', p2Key: 'qf_m1_p2', s1Key: 'qf_m1_s1', s2Key: 'qf_m1_s2' }}
           />
 
@@ -722,7 +708,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 8 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 2', slotKey: 'r32_m5_p2' }}
-                r32Match={{ num: 32, p1Key: 'r32_m5_p1', p2Key: 'r32_m5_p2', s1Key: 'r32_m5_s1', s2Key: 'r32_m5_s2', label: 'M32 (R32-5)' }}
+                r32Match={{ num: 31, p1Key: 'r32_m5_p1', p2Key: 'r32_m5_p2', s1Key: 'r32_m5_s1', s2Key: 'r32_m5_s2', label: 'M31 (R32-5)' }}
                 isBye={true}
               />
             }
@@ -730,33 +716,33 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 9 }}
                 bottomItem={{ type: 'match', num: 10 }}
-                r32Match={{ num: 33, p1Key: 'r32_m6_p1', p2Key: 'r32_m6_p2', s1Key: 'r32_m6_s1', s2Key: 'r32_m6_s2', label: 'M33 (R32-6)' }}
+                r32Match={{ num: 32, p1Key: 'r32_m6_p1', p2Key: 'r32_m6_p2', s1Key: 'r32_m6_s1', s2Key: 'r32_m6_s2', label: 'M32 (R32-6)' }}
               />
             }
-            r16TopMatch={{ num: 46, p1Key: 'r16_m3_p1', p2Key: 'r16_m3_p2', s1Key: 'r16_m3_s1', s2Key: 'r16_m3_s2' }}
+            r16TopMatch={{ num: 45, p1Key: 'r16_m3_p1', p2Key: 'r16_m3_p2', s1Key: 'r16_m3_s1', s2Key: 'r16_m3_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 11 }}
                 bottomItem={{ type: 'match', num: 12 }}
-                r32Match={{ num: 34, p1Key: 'r32_m7_p1', p2Key: 'r32_m7_p2', s1Key: 'r32_m7_s1', s2Key: 'r32_m7_s2', label: 'M34 (R32-7)' }}
+                r32Match={{ num: 33, p1Key: 'r32_m7_p1', p2Key: 'r32_m7_p2', s1Key: 'r32_m7_s1', s2Key: 'r32_m7_s2', label: 'M33 (R32-7)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 13 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 3', slotKey: 'r32_m8_p2' }}
-                r32Match={{ num: 35, p1Key: 'r32_m8_p1', p2Key: 'r32_m8_p2', s1Key: 'r32_m8_s1', s2Key: 'r32_m8_s2', label: 'M35 (R32-8)' }}
+                r32Match={{ num: 34, p1Key: 'r32_m8_p1', p2Key: 'r32_m8_p2', s1Key: 'r32_m8_s1', s2Key: 'r32_m8_s2', label: 'M34 (R32-8)' }}
                 isBye={true}
               />
             }
-            r16BottomMatch={{ num: 47, p1Key: 'r16_m4_p1', p2Key: 'r16_m4_p2', s1Key: 'r16_m4_s1', s2Key: 'r16_m4_s2' }}
+            r16BottomMatch={{ num: 46, p1Key: 'r16_m4_p1', p2Key: 'r16_m4_p2', s1Key: 'r16_m4_s1', s2Key: 'r16_m4_s2' }}
             qfMatch={{ num: 2, p1Key: 'qf_m2_p1', p2Key: 'qf_m2_p2', s1Key: 'qf_m2_s1', s2Key: 'qf_m2_s2' }}
           />
         </div>
       )}
 
       {/* =========================================================================
-          VIEW MODE 2: POOL B (SESI 2 - SIANG)
+          VIEW MODE 2: POOL B (SESI 2 - SIANG - 29 TIM / 3 BYE)
          ========================================================================= */}
       {viewMode === 'poolB' && !searchQuery.trim() && (
         <div className="space-y-6">
@@ -764,8 +750,8 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             <div className="flex items-center gap-3">
               <Sunset className="w-6 h-6 text-orange-400 shrink-0" />
               <div>
-                <h3 className="font-display font-bold text-base">SESI 2: POOL B (SESI SIANG/SORE)</h3>
-                <p className="text-xs text-slate-300">30 Tim · Match 14 s/d 27 di R64 · 2 Tim BYE · Menuju QF 3 & QF 4</p>
+                <h3 className="font-display font-bold text-base">SESI 2: POOL B (SESI SIANG)</h3>
+                <p className="text-xs text-slate-300">29 Tim · Match 14 s/d 26 di R64 · 3 Tim BYE · Menuju QF 3 & QF 4</p>
               </div>
             </div>
             <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold shrink-0">Sesi Siang</span>
@@ -779,7 +765,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 14 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 4', slotKey: 'r32_m9_p2' }}
-                r32Match={{ num: 36, p1Key: 'r32_m9_p1', p2Key: 'r32_m9_p2', s1Key: 'r32_m9_s1', s2Key: 'r32_m9_s2', label: 'M36 (R32-9)' }}
+                r32Match={{ num: 35, p1Key: 'r32_m9_p1', p2Key: 'r32_m9_p2', s1Key: 'r32_m9_s1', s2Key: 'r32_m9_s2', label: 'M35 (R32-9)' }}
                 isBye={true}
               />
             }
@@ -787,25 +773,25 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 15 }}
                 bottomItem={{ type: 'match', num: 16 }}
-                r32Match={{ num: 37, p1Key: 'r32_m10_p1', p2Key: 'r32_m10_p2', s1Key: 'r32_m10_s1', s2Key: 'r32_m10_s2', label: 'M37 (R32-10)' }}
+                r32Match={{ num: 36, p1Key: 'r32_m10_p1', p2Key: 'r32_m10_p2', s1Key: 'r32_m10_s1', s2Key: 'r32_m10_s2', label: 'M36 (R32-10)' }}
               />
             }
-            r16TopMatch={{ num: 48, p1Key: 'r16_m5_p1', p2Key: 'r16_m5_p2', s1Key: 'r16_m5_s1', s2Key: 'r16_m5_s2' }}
+            r16TopMatch={{ num: 47, p1Key: 'r16_m5_p1', p2Key: 'r16_m5_p2', s1Key: 'r16_m5_s1', s2Key: 'r16_m5_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 17 }}
                 bottomItem={{ type: 'match', num: 18 }}
-                r32Match={{ num: 38, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M38 (R32-11)' }}
+                r32Match={{ num: 37, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M37 (R32-11)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 19 }}
                 bottomItem={{ type: 'match', num: 20 }}
-                r32Match={{ num: 39, p1Key: 'r32_m12_p1', p2Key: 'r32_m12_p2', s1Key: 'r32_m12_s1', s2Key: 'r32_m12_s2', label: 'M39 (R32-12)' }}
+                r32Match={{ num: 38, p1Key: 'r32_m12_p1', p2Key: 'r32_m12_p2', s1Key: 'r32_m12_s1', s2Key: 'r32_m12_s2', label: 'M38 (R32-12)' }}
               />
             }
-            r16BottomMatch={{ num: 49, p1Key: 'r16_m6_p1', p2Key: 'r16_m6_p2', s1Key: 'r16_m6_s1', s2Key: 'r16_m6_s2' }}
+            r16BottomMatch={{ num: 48, p1Key: 'r16_m6_p1', p2Key: 'r16_m6_p2', s1Key: 'r16_m6_s1', s2Key: 'r16_m6_s2' }}
             qfMatch={{ num: 3, p1Key: 'qf_m3_p1', p2Key: 'qf_m3_p2', s1Key: 'qf_m3_s1', s2Key: 'qf_m3_s2' }}
           />
 
@@ -817,7 +803,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 21 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 5', slotKey: 'r32_m13_p2' }}
-                r32Match={{ num: 40, p1Key: 'r32_m13_p1', p2Key: 'r32_m13_p2', s1Key: 'r32_m13_s1', s2Key: 'r32_m13_s2', label: 'M40 (R32-13)' }}
+                r32Match={{ num: 39, p1Key: 'r32_m13_p1', p2Key: 'r32_m13_p2', s1Key: 'r32_m13_s1', s2Key: 'r32_m13_s2', label: 'M39 (R32-13)' }}
                 isBye={true}
               />
             }
@@ -825,25 +811,26 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 22 }}
                 bottomItem={{ type: 'match', num: 23 }}
-                r32Match={{ num: 41, p1Key: 'r32_m14_p1', p2Key: 'r32_m14_p2', s1Key: 'r32_m14_s1', s2Key: 'r32_m14_s2', label: 'M41 (R32-14)' }}
+                r32Match={{ num: 40, p1Key: 'r32_m14_p1', p2Key: 'r32_m14_p2', s1Key: 'r32_m14_s1', s2Key: 'r32_m14_s2', label: 'M40 (R32-14)' }}
               />
             }
-            r16TopMatch={{ num: 50, p1Key: 'r16_m7_p1', p2Key: 'r16_m7_p2', s1Key: 'r16_m7_s1', s2Key: 'r16_m7_s2' }}
+            r16TopMatch={{ num: 49, p1Key: 'r16_m7_p1', p2Key: 'r16_m7_p2', s1Key: 'r16_m7_s1', s2Key: 'r16_m7_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 24 }}
                 bottomItem={{ type: 'match', num: 25 }}
-                r32Match={{ num: 42, p1Key: 'r32_m15_p1', p2Key: 'r32_m15_p2', s1Key: 'r32_m15_s1', s2Key: 'r32_m15_s2', label: 'M42 (R32-15)' }}
+                r32Match={{ num: 41, p1Key: 'r32_m15_p1', p2Key: 'r32_m15_p2', s1Key: 'r32_m15_s1', s2Key: 'r32_m15_s2', label: 'M41 (R32-15)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 26 }}
-                bottomItem={{ type: 'match', num: 27 }}
-                r32Match={{ num: 43, p1Key: 'r32_m16_p1', p2Key: 'r32_m16_p2', s1Key: 'r32_m16_s1', s2Key: 'r32_m16_s2', label: 'M43 (R32-16)' }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot 6', slotKey: 'r32_m16_p2' }}
+                r32Match={{ num: 42, p1Key: 'r32_m16_p1', p2Key: 'r32_m16_p2', s1Key: 'r32_m16_s1', s2Key: 'r32_m16_s2', label: 'M42 (R32-16)' }}
+                isBye={true}
               />
             }
-            r16BottomMatch={{ num: 51, p1Key: 'r16_m8_p1', p2Key: 'r16_m8_p2', s1Key: 'r16_m8_s1', s2Key: 'r16_m8_s2' }}
+            r16BottomMatch={{ num: 50, p1Key: 'r16_m8_p1', p2Key: 'r16_m8_p2', s1Key: 'r16_m8_s1', s2Key: 'r16_m8_s2' }}
             qfMatch={{ num: 4, p1Key: 'qf_m4_p1', p2Key: 'qf_m4_p2', s1Key: 'qf_m4_s1', s2Key: 'qf_m4_s2' }}
           />
         </div>
@@ -873,7 +860,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 </div>
                 <p className="text-xs text-slate-400 font-mono font-bold uppercase">Runner Up</p>
                 <p className="font-display font-bold text-base text-slate-900 mt-1 truncate">
-                  {bracketData['champion_2'] || bracketData['final_m1_p2'] || 'Menunggu Hasil...'}
+                  {bracketData['champion_2'] || bracketData['podium_2'] || bracketData['final_m1_p2'] || bracketData['gf_p2'] || 'Menunggu Hasil...'}
                 </p>
                 <p className="text-xs font-mono text-slate-500 mt-0.5">Hadiah Rp 3.000.000</p>
               </div>
@@ -886,7 +873,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 </div>
                 <p className="text-xs text-amber-700 font-mono font-bold uppercase">Juara 1 Turnamen</p>
                 <p className="font-display font-extrabold text-lg text-slate-900 mt-1 truncate">
-                  {bracketData['champion_1'] || 'Menunggu Juara...'}
+                  {bracketData['champion_1'] || bracketData['podium_1'] || 'Menunggu Juara...'}
                 </p>
                 <p className="text-xs font-mono font-bold text-amber-600 mt-0.5">Hadiah Rp 4.000.000 + Trophy</p>
               </div>
@@ -898,7 +885,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 </div>
                 <p className="text-xs text-slate-400 font-mono font-bold uppercase">Juara 3</p>
                 <p className="font-display font-bold text-base text-slate-900 mt-1 truncate">
-                  {bracketData['champion_3'] || 'Menunggu Hasil...'}
+                  {bracketData['champion_3'] || bracketData['podium_3'] || 'Menunggu Hasil...'}
                 </p>
                 <p className="text-xs font-mono text-slate-500 mt-0.5">Hadiah Rp 2.000.000</p>
               </div>
@@ -918,7 +905,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                   return (
                     <ReadOnlyMatchCard
                       key={`public-finals-qf-${m}`}
-                      matchLabel={`QF ${m} (Match ${51 + m})`}
+                      matchLabel={`QF ${m} (Match ${50 + m})`}
                       p1Key={`qf_m${m}_p1`}
                       p2Key={`qf_m${m}_p2`}
                       s1Key={`qf_m${m}_s1`}
@@ -937,7 +924,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
               </div>
               <div className="space-y-8 pt-4">
                 <ReadOnlyMatchCard
-                  matchLabel="Semifinal 1 (Match 56)"
+                  matchLabel="Semifinal 1 (Match 55)"
                   p1Key="sf_m1_p1"
                   p2Key="sf_m1_p2"
                   s1Key="sf_m1_s1"
@@ -946,7 +933,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 />
 
                 <ReadOnlyMatchCard
-                  matchLabel="Semifinal 2 (Match 57)"
+                  matchLabel="Semifinal 2 (Match 56)"
                   p1Key="sf_m2_p1"
                   p2Key="sf_m2_p2"
                   s1Key="sf_m2_s1"
@@ -968,7 +955,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                     👑 PEREBUTAN JUARA 1 & 2 (BO5)
                   </div>
                   <ReadOnlyMatchCard
-                    matchLabel="Grand Final (Match 59)"
+                    matchLabel="Grand Final (Match 58)"
                     p1Key="final_m1_p1"
                     p2Key="final_m1_p2"
                     s1Key="final_m1_s1"
@@ -983,7 +970,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                     🥉 PEREBUTAN JUARA 3 (BO3)
                   </div>
                   <ReadOnlyMatchCard
-                    matchLabel="Bronze Match (Match 58)"
+                    matchLabel="Bronze Match (Match 57)"
                     p1Key="bronze_m1_p1"
                     p2Key="bronze_m1_p2"
                     s1Key="bronze_m1_s1"
@@ -1005,7 +992,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
           <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
             <div>
               <h3 className="font-display font-bold text-sm">Daftar Seluruh 58 Pertandingan Turnamen</h3>
-              <p className="text-xs text-slate-300">Format Single Elimination 59 Tim Mobile Legends Bang Bang</p>
+              <p className="text-xs text-slate-300">Format Single Elimination 58 Tim Mobile Legends Bang Bang</p>
             </div>
             <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">
               {filteredMatches.length} Match Ditampilkan
