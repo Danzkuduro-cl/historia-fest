@@ -433,16 +433,31 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
     }
 
     // Match 27 - 42 (R32 - 16 Matches)
+    const byeSlotKeyMap: Record<number, string> = {
+      27: 'BYE Slot 1', // r32_m1_p2 (Wahid Reformers)
+      31: 'BYE Slot 2', // r32_m5_p2 (Kaisiepo Tigers)
+      34: 'BYE Slot 3', // r32_m8_p2 (Mongisidi Avengers)
+      35: 'BYE Slot 4', // r32_m9_p2 (Tjokroaminoto Elites)
+      37: 'BYE Slot (Sesi 2)', // r32_m11_p2 (Sjahrir Diplomats)
+      39: 'BYE Slot 5', // r32_m13_p2 (Roem Negotiators)
+      42: 'BYE Slot 6', // r32_m16_p2 (Sjafruddin Cabinets)
+    };
+
     for (let i = 1; i <= 16; i++) {
+      const matchNum = 26 + i;
       const isPoolA = i <= 8;
+      const isBye = Boolean(byeSlotKeyMap[matchNum]);
+      const byeTag = byeSlotKeyMap[matchNum];
       list.push({
-        num: 26 + i,
+        num: matchNum,
         stage: 'Babak 32 Besar',
         session: isPoolA ? 'Sesi 1: Pool A (Pagi)' : 'Sesi 2: Pool B (Siang)',
         p1: bracketData[`r32_m${i}_p1`] || '',
-        p2: bracketData[`r32_m${i}_p2`] || '',
+        p2: bracketData[`r32_m${i}_p2`] || (isBye ? `★ ${byeTag}` : ''),
         s1: bracketData[`r32_m${i}_s1`] || '',
         s2: bracketData[`r32_m${i}_s2`] || '',
+        isBye,
+        byeTag,
       });
     }
 
@@ -783,8 +798,9 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             r32Block3={
               <ReadOnlyR32PairBlock
                 topMatch={{ num: 17 }}
-                bottomItem={{ type: 'match', num: 18 }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot (Sesi 2)', slotKey: 'r32_m11_p2' }}
                 r32Match={{ num: 37, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M37 (R32-11)' }}
+                isBye={true}
               />
             }
             r32Block4={

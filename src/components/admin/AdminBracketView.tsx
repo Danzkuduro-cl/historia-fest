@@ -966,9 +966,10 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
             r32Block3={
               <R32PairBlock
                 topMatch={{ num: 17, target: 'r32_m11_p1' }}
-                bottomItem={{ type: 'match', num: 18, target: 'r32_m11_p2' }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot (Sesi 2)', slotKey: 'r32_m11_p2' }}
                 r32Match={{ num: 37, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M37 (R32-11)' }}
                 r32TargetKey="r16_m6_p1"
+                isBye={true}
               />
             }
             r32Block4={
