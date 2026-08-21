@@ -88,13 +88,13 @@ export default function LandingPageClient({ remainingSlots, initialBracketData }
             <a href="#festival" className="text-sm font-body font-medium text-slate-500 hover:text-red-600 transition-colors">Festival Rakyat</a>
           </nav>
 
-          {/* CTA Button to Register Route */}
+          {/* CTA Button to Bracket */}
           <div>
-            <Link href="/register">
+            <a href="#bracket">
               <NeonButton variant="primary" size="sm" className="font-bold text-xs">
-                Daftar Tim
+                Lihat Bagan
               </NeonButton>
-            </Link>
+            </a>
           </div>
         </div>
       </header>
@@ -104,11 +104,11 @@ export default function LandingPageClient({ remainingSlots, initialBracketData }
 
       {/* Floating CTA for Mobile */}
       <div className="md:hidden fixed bottom-6 right-6 z-50">
-        <Link href="/register">
+        <a href="#bracket">
           <NeonButton variant="primary" size="lg" className="shadow-lg font-bold">
-            Daftar Sekarang
+            Bagan Turnamen
           </NeonButton>
-        </Link>
+        </a>
       </div>
 
       {/* Landing Page Content Sections */}
@@ -244,18 +244,21 @@ export default function LandingPageClient({ remainingSlots, initialBracketData }
             </div>
           </div>
 
-          {/* Registration CTA card */}
-          <div className="p-6 md:p-8 rounded-2xl bg-red-600 text-white text-center space-y-4 shadow-lg">
-            <h3 className="font-display font-bold text-2xl">Sudah Siap Membawa Tim Kamu Juara?</h3>
-            <p className="text-red-50 text-xs md:text-sm font-body max-w-lg mx-auto">
-              Segera kunci slot pendaftaran tim kamu sebelum batas akhir 15 Agustus 2026 atau kuota 64 slot tim habis terpenuhi!
+          {/* Registration Closed Card */}
+          <div className="p-6 md:p-8 rounded-2xl bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white text-center space-y-4 shadow-lg border border-red-500/30">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-xs font-mono font-bold tracking-wider uppercase">
+              🔒 Pendaftaran Resmi Ditutup
+            </div>
+            <h3 className="font-display font-bold text-2xl">Bagan & Jadwal 58 Tim Telah Diterbitkan!</h3>
+            <p className="text-red-50 text-xs md:text-sm font-body max-w-lg mx-auto leading-relaxed">
+              Seluruh slot turnamen telah terkunci dan bagan pertandingan resmi telah diundi. Pantau jadwal, saksikan pertandingan, dan dukung tim jagoanmu!
             </p>
             <div className="pt-2">
-              <Link href="/register">
-                <button className="px-8 py-3 rounded-xl bg-white text-red-600 font-display font-bold hover:bg-red-50 transition-all shadow-md">
-                  Daftarkan Tim Sekarang
+              <a href="#bracket">
+                <button className="px-8 py-3 rounded-xl bg-white text-red-700 font-display font-bold hover:bg-red-50 transition-all shadow-md">
+                  Lihat Bagan & Jadwal Pertandingan
                 </button>
-              </Link>
+              </a>
             </div>
           </div>
         </section>

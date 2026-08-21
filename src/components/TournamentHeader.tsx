@@ -85,10 +85,10 @@ export default function TournamentHeader({ remainingSlots }: TournamentHeaderPro
           />
           <StatCard
             icon={<Users className="w-4 h-4 text-slate-700" />}
-            label="Sisa Slot"
-            value={`${remainingSlots} / ${maxSlots}`}
-            highlight={remainingSlots <= 10 ? 'red' : 'blue'}
-            urgent={remainingSlots <= 10}
+            label="Status Pendaftaran"
+            value="Ditutup"
+            highlight="red"
+            urgent={false}
           />
           <StatCard
             icon={<Calendar className="w-4 h-4 text-slate-700" />}
@@ -112,28 +112,21 @@ export default function TournamentHeader({ remainingSlots }: TournamentHeaderPro
         <div className="glass-card rounded-xl p-4 mb-6 bg-white border border-slate-200">
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs font-body text-slate-500">Slot Terisi</span>
-            <span className="text-xs font-mono text-red-600 font-bold">{maxSlots - remainingSlots}/{maxSlots} Tim</span>
+            <span className="text-xs font-mono text-red-600 font-bold">58 / 58 Tim (100%)</span>
           </div>
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-1000"
               style={{
-                width: `${slotPercentage}%`,
+                width: `100%`,
                 background: 'linear-gradient(90deg, #DC2626, #EF4444)',
                 boxShadow: `0 0 8px rgba(220, 38, 38, 0.2)`,
               }}
             />
           </div>
-          {remainingSlots <= 10 && remainingSlots > 0 && (
-            <p className="text-xs text-red-600 mt-1.5 font-body font-medium animate-pulse">
-              ⚠️ Hampir penuh! Segera daftar sebelum slot habis.
-            </p>
-          )}
-          {remainingSlots === 0 && (
-            <p className="text-xs text-red-600 mt-1.5 font-body font-semibold">
-              🚫 Pendaftaran sudah ditutup. Slot penuh.
-            </p>
-          )}
+          <p className="text-xs text-red-700 mt-2 font-body font-semibold flex items-center gap-1">
+            🔒 Pendaftaran telah resmi ditutup. Bagan pertandingan 58 tim telah diterbitkan.
+          </p>
         </div>
 
         {/* Countdown */}

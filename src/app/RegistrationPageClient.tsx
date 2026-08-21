@@ -15,8 +15,9 @@ import StepSubstitutes from '@/components/form/StepSubstitutes';
 import StepReview from '@/components/form/StepReview';
 import NeonButton from '@/components/ui/NeonButton';
 import { registerTeam, cancelRegistration } from '@/lib/actions';
-import { AlertTriangle, ChevronLeft, ChevronRight, Send } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Send, Shield, Trophy } from 'lucide-react';
 import { HeroTeam } from '@/lib/hero-teams';
+import Link from 'next/link';
 
 const playerSchema = z.object({
   full_name: z.string().min(3, 'Nama minimal 3 karakter').max(50, 'Nama terlalu panjang'),
@@ -82,6 +83,46 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
   const [storedPending, setStoredPending] = useState<PendingPayment | null>(null);
   const [isCancellingStored, setIsCancellingStored] = useState(false);
   const formTopRef = useRef<HTMLDivElement>(null);
+
+  // If registration is closed, show dedicated closed state
+  if (remainingSlots <= 0) {
+    return (
+      <div className="min-h-screen bg-slate-50 grid-bg text-slate-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-2xl text-center space-y-6">
+          <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-center mx-auto text-red-600 shadow-sm">
+            <Shield className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-xs font-mono font-bold text-red-600 bg-red-50 border border-red-100 px-3 py-1 rounded-full uppercase">
+              Pendaftaran Ditutup
+            </span>
+            <h1 className="font-display font-extrabold text-2xl text-slate-900">
+              Pendaftaran Turnamen Telah Resmi Ditutup
+            </h1>
+            <p className="text-xs md:text-sm text-slate-500 font-body leading-relaxed">
+              Seluruh kuota 58 slot tim telah terisi penuh dan bagan pertandingan resmi turnamen telah diterbitkan.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-3">
+            <Link href="/#bracket" className="block w-full">
+              <button className="w-full py-3.5 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-display font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                <Trophy className="w-4 h-4" />
+                <span>Lihat Bagan & Jadwal Pertandingan</span>
+              </button>
+            </Link>
+
+            <Link href="/" className="block w-full">
+              <button className="w-full py-3 px-6 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-body font-semibold text-xs transition-all">
+                Kembali ke Beranda
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Load pending payment from localStorage on mount
   useEffect(() => {

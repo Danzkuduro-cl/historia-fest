@@ -36,6 +36,11 @@ export async function getAvailableHeroTeams(): Promise<HeroTeam[]> {
 }
 
 export async function registerTeam(payload: RegistrationPayload) {
+  const isRegistrationClosed = true;
+  if (isRegistrationClosed) {
+    return { error: 'Pendaftaran turnamen telah resmi ditutup oleh panitia.' };
+  }
+
   const supabase = createServerSupabase();
 
   // Validate hero team name selection
@@ -72,7 +77,7 @@ export async function registerTeam(payload: RegistrationPayload) {
     .in('payment_status', ['paid', 'pending']);
 
   const maxSlots = parseInt(process.env.NEXT_PUBLIC_MAX_SLOTS || '64');
-  if (count && count >= maxSlots) {
+  if ((count ?? 0) >= maxSlots) {
     return { error: 'Slot pendaftaran sudah penuh.' };
   }
 
@@ -208,16 +213,7 @@ export async function uploadTeamLogo(formData: FormData) {
 }
 
 export async function getRemainingSlots() {
-  const supabase = createServerSupabase();
-  const maxSlots = parseInt(process.env.NEXT_PUBLIC_MAX_SLOTS || '64');
-
-  const { count } = await supabase
-    .from('teams')
-    .select('*', { count: 'exact', head: true })
-    .neq('registration_code', 'SYS-BRK')
-    .in('payment_status', ['paid', 'pending']);
-
-  return Math.max(0, maxSlots - (count || 0));
+  return 0;
 }
 
 export async function getTeamByRegistrationCode(code: string) {
