@@ -21,7 +21,7 @@ interface AdminBracketViewProps {
   teams: TeamItem[];
 }
 
-const STORAGE_KEY = 'fiesta_historia_bracket_59_v1';
+const STORAGE_KEY = 'fiesta_historia_bracket_58_v2';
 
 export default function AdminBracketView({ teams }: AdminBracketViewProps) {
   const [bracketData, setBracketData] = useState<Record<string, string>>({});
@@ -30,25 +30,27 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
   const [showResetModal, setShowResetModal] = useState(false);
   const [isSavingDb, setIsSavingDb] = useState(false);
 
-  // Load from localStorage or DB
+  // Priority load from DB, fallback to localStorage
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Object.keys(parsed).length > 0) {
-          setBracketData(parsed);
-          return;
-        }
-      }
-    } catch (e) {
-      console.error('Failed to load bracket data', e);
-    }
-
-    // Fallback load from DB
     getBracketStateFromDb().then(dbData => {
       if (dbData && Object.keys(dbData).length > 0) {
         setBracketData(dbData);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(dbData));
+        } catch (e) {}
+        return;
+      }
+
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Object.keys(parsed).length > 0) {
+            setBracketData(parsed);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load bracket data', e);
       }
     });
   }, []);

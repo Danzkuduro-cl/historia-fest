@@ -13,29 +13,32 @@ interface PublicBracketViewProps {
   initialData?: Record<string, string>;
 }
 
-const STORAGE_KEY = 'fiesta_historia_bracket_59_v1';
+const STORAGE_KEY = 'fiesta_historia_bracket_58_v2';
 
 export default function PublicBracketView({ initialTeams = [], initialData = {} }: PublicBracketViewProps) {
   const [bracketData, setBracketData] = useState<Record<string, string>>(initialData);
   const [viewMode, setViewMode] = useState<'poolA' | 'poolB' | 'finals' | 'list'>('poolA');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Load from localStorage or initialData
+  // Primary load from DB initialData, fallback to localStorage
   useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      setBracketData(initialData);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialData));
+      } catch (e) {}
+      return;
+    }
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Object.keys(parsed).length > 0) {
           setBracketData(parsed);
-          return;
         }
       }
     } catch (e) {}
-
-    if (initialData && Object.keys(initialData).length > 0) {
-      setBracketData(initialData);
-    }
   }, [initialData]);
 
   const isSearched = (teamName?: string) => {
