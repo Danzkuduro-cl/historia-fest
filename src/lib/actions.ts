@@ -214,6 +214,7 @@ export async function getRemainingSlots() {
   const { count } = await supabase
     .from('teams')
     .select('*', { count: 'exact', head: true })
+    .neq('registration_code', 'SYS-BRK')
     .in('payment_status', ['paid', 'pending']);
 
   return Math.max(0, maxSlots - (count || 0));

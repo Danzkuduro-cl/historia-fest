@@ -75,11 +75,11 @@ export async function saveBracketStateToDb(bracketData: Record<string, string>) 
       const { error: updateError } = await supabase
         .from('teams')
         .update({
-          team_name: '__SYSTEM_BRACKET__',
-          captain_name: 'System',
-          whatsapp: '0',
+          team_name: 'Bracket System',
+          captain_name: 'Admin',
+          whatsapp: '0800000000',
           logo_url: jsonString,
-          payment_status: 'system_bracket',
+          payment_status: 'paid',
         })
         .eq('id', existing.id);
 
@@ -89,11 +89,11 @@ export async function saveBracketStateToDb(bracketData: Record<string, string>) 
         .from('teams')
         .insert({
           registration_code: SYSTEM_BRACKET_CODE,
-          team_name: '__SYSTEM_BRACKET__',
-          captain_name: 'System',
-          whatsapp: '0',
+          team_name: 'Bracket System',
+          captain_name: 'Admin',
+          whatsapp: '0800000000',
           logo_url: jsonString,
-          payment_status: 'system_bracket',
+          payment_status: 'paid',
         });
 
       if (insertError) throw insertError;
