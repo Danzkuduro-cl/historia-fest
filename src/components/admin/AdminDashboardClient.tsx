@@ -250,7 +250,7 @@ export default function AdminDashboardClient({ teams: initialTeams, stats, avail
             )}
           >
             <Trophy className="w-4 h-4 text-amber-300" />
-            <span>Bagan Turnamen (59 Tim)</span>
+            <span>Bagan Turnamen (58 Tim)</span>
           </button>
         </div>
 

@@ -267,7 +267,7 @@ export default function LandingPageClient({ remainingSlots, initialBracketData }
               Bagan Pertandingan
             </span>
             <h2 className="font-display font-bold text-3xl text-slate-900">
-              Bagan Turnamen & Jadwal 59 Tim
+              Bagan Turnamen & Jadwal 58 Tim
             </h2>
             <p className="text-xs md:text-sm text-slate-500 font-body max-w-xl mx-auto">
               Pantau pembagian bagan Pool A (Pagi), Pool B (Siang), 8 Besar & Grand Final, atau cari jadwal pertandingan tim kamu secara langsung.
