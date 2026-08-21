@@ -648,7 +648,7 @@ export default function BracketPageClient({ initialTeams }: BracketPageClientPro
                   BAGAN TURNAMEN FIESTA HISTORIA
                 </h1>
                 <p className="text-[10px] text-red-600 font-mono font-bold mt-0.5">
-                  58 TIM · SINGLE ELIMINATION · 6 BYE SLOTS
+                  59 TIM · SINGLE ELIMINATION · BYE SLOTS
                 </p>
               </div>
             </div>

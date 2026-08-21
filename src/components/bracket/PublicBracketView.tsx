@@ -543,14 +543,14 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 Official Bracket
               </span>
               <span className="text-xs font-mono text-slate-300">
-                58 Tim Terdaftar · 6 Slot BYE
+                59 Tim Terdaftar · BYE Slots
               </span>
             </div>
             <h2 className="font-display font-extrabold text-2xl md:text-3xl tracking-tight text-white">
-              Bagan Pertandingan Turnamen (58 Tim)
+              Bagan Pertandingan Turnamen (59 Tim)
             </h2>
             <p className="text-xs md:text-sm text-slate-300 font-body leading-relaxed">
-              Pertandingan dibagi seimbang ke 2 sesi penyisihan (Pool A & Pool B: masing-masing 29 tim & 3 BYE) menuju Babak 8 Besar dan Grand Final.
+              Pertandingan dibagi ke 2 sesi penyisihan (Pool A & Pool B) menuju Babak 8 Besar dan Grand Final.
             </p>
           </div>
 
@@ -995,7 +995,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
           <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
             <div>
               <h3 className="font-display font-bold text-sm">Daftar Seluruh 58 Pertandingan Turnamen</h3>
-              <p className="text-xs text-slate-300">Format Single Elimination 58 Tim Mobile Legends Bang Bang</p>
+              <p className="text-xs text-slate-300">Format Single Elimination 59 Tim Mobile Legends Bang Bang</p>
             </div>
             <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">
               {filteredMatches.length} Match Ditampilkan

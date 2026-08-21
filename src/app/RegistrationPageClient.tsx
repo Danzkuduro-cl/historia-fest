@@ -101,7 +101,7 @@ export default function RegistrationPageClient({ remainingSlots, availableHeroTe
               Pendaftaran Turnamen Telah Resmi Ditutup
             </h1>
             <p className="text-xs md:text-sm text-slate-500 font-body leading-relaxed">
-              Seluruh kuota 58 slot tim telah terisi penuh dan bagan pertandingan resmi turnamen telah diterbitkan.
+              Seluruh kuota 59 slot tim telah terisi penuh dan bagan pertandingan resmi turnamen telah diterbitkan.
             </p>
           </div>
 

@@ -68,7 +68,7 @@ export default function TournamentHeader({ remainingSlots }: TournamentHeaderPro
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-display font-bold border border-red-200 transition-all shadow-2xs group"
               >
                 <Trophy className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform" />
-                <span>Lihat Bagan Turnamen (58 Tim)</span>
+                <span>Lihat Bagan Turnamen (59 Tim)</span>
                 <ArrowRight className="w-3.5 h-3.5 -ml-0.5" />
               </a>
             </div>
@@ -112,7 +112,7 @@ export default function TournamentHeader({ remainingSlots }: TournamentHeaderPro
         <div className="glass-card rounded-xl p-4 mb-6 bg-white border border-slate-200">
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs font-body text-slate-500">Slot Terisi</span>
-            <span className="text-xs font-mono text-red-600 font-bold">58 / 58 Tim (100%)</span>
+            <span className="text-xs font-mono text-red-600 font-bold">59 / 59 Tim (100%)</span>
           </div>
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
@@ -125,7 +125,7 @@ export default function TournamentHeader({ remainingSlots }: TournamentHeaderPro
             />
           </div>
           <p className="text-xs text-red-700 mt-2 font-body font-semibold flex items-center gap-1">
-            🔒 Pendaftaran telah resmi ditutup. Bagan pertandingan 58 tim telah diterbitkan.
+            🔒 Pendaftaran telah resmi ditutup. Bagan pertandingan 59 tim telah diterbitkan.
           </p>
         </div>
 
