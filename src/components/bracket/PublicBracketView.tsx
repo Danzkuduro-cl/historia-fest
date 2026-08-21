@@ -1,0 +1,1020 @@
+'use client';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Trophy, Crown, Sun, Sunset, 
+  Search, LayoutGrid, ListFilter, ArrowRight, Printer, Sparkles, Shield, Clock, Award
+} from 'lucide-react';
+import { BracketTeamData } from '@/lib/actions';
+import { cn } from '@/lib/utils';
+
+interface PublicBracketViewProps {
+  initialTeams?: BracketTeamData[];
+  initialData?: Record<string, string>;
+}
+
+const STORAGE_KEY = 'fiesta_historia_bracket_59_v1';
+
+export default function PublicBracketView({ initialTeams = [], initialData = {} }: PublicBracketViewProps) {
+  const [bracketData, setBracketData] = useState<Record<string, string>>(initialData);
+  const [viewMode, setViewMode] = useState<'poolA' | 'poolB' | 'finals' | 'list'>('poolA');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Load from localStorage or initialData
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Object.keys(parsed).length > 0) {
+          setBracketData(parsed);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    if (initialData && Object.keys(initialData).length > 0) {
+      setBracketData(initialData);
+    }
+  }, [initialData]);
+
+  // Read-only Read Card
+  const ReadOnlyMatchCard = ({
+    matchLabel,
+    p1Key,
+    p2Key,
+    s1Key,
+    s2Key,
+    isBye = false,
+    byeText = "★ BYE (Lolos Otomatis)",
+    stageName
+  }: {
+    matchLabel: string;
+    p1Key: string;
+    p2Key: string;
+    s1Key?: string;
+    s2Key?: string;
+    isBye?: boolean;
+    byeText?: string;
+    stageName?: string;
+  }) => {
+    const p1Name = bracketData[p1Key]?.trim();
+    const p2Name = bracketData[p2Key]?.trim();
+    const s1 = s1Key ? bracketData[s1Key]?.trim() : '';
+    const s2 = s2Key ? bracketData[s2Key]?.trim() : '';
+
+    const hasScore = s1 !== '' && s2 !== '';
+    const s1Num = parseInt(s1, 10);
+    const s2Num = parseInt(s2, 10);
+    const p1Wins = hasScore && !isNaN(s1Num) && !isNaN(s2Num) && s1Num > s2Num;
+    const p2Wins = hasScore && !isNaN(s1Num) && !isNaN(s2Num) && s2Num > s1Num;
+
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden w-64 text-left transition-all hover:border-slate-300 hover:shadow-sm">
+        {/* Match Header */}
+        <div className="bg-slate-900 text-white px-3 py-1.5 flex items-center justify-between text-[11px] font-mono">
+          <span className="font-bold tracking-wide flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
+            {matchLabel}
+          </span>
+          {stageName ? (
+            <span className="text-[10px] text-slate-300 font-sans">{stageName}</span>
+          ) : (
+            <span className="text-[10px] text-slate-400">BO3</span>
+          )}
+        </div>
+
+        {/* Teams & Scores (Read Only) */}
+        <div className="divide-y divide-slate-100 font-body text-xs">
+          {/* Team 1 */}
+          <div className={cn(
+            "p-2.5 flex items-center justify-between gap-2 transition-colors",
+            p1Wins ? "bg-emerald-50/80 font-bold text-emerald-950" : "text-slate-800",
+            !p1Name && "text-slate-400 italic"
+          )}>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-mono font-bold shrink-0">
+                1
+              </span>
+              <span className="truncate text-xs font-semibold">
+                {p1Name || "Menunggu pemenang..."}
+              </span>
+            </div>
+            {s1Key && (
+              <span className={cn(
+                "px-2 py-0.5 rounded text-xs font-mono font-bold shrink-0",
+                p1Wins ? "bg-emerald-600 text-white shadow-2xs" : "bg-slate-100 text-slate-700"
+              )}>
+                {s1 || '-'}
+              </span>
+            )}
+          </div>
+
+          {/* Team 2 */}
+          <div className={cn(
+            "p-2.5 flex items-center justify-between gap-2 transition-colors",
+            p2Wins ? "bg-emerald-50/80 font-bold text-emerald-950" : "text-slate-800",
+            !p2Name && !isBye && "text-slate-400 italic",
+            isBye && "bg-amber-50/60 text-amber-900"
+          )}>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="w-4 h-4 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[9px] font-mono font-bold shrink-0">
+                2
+              </span>
+              {isBye ? (
+                <span className="truncate text-[11px] font-bold text-amber-700 flex items-center gap-1">
+                  {p2Name || byeText}
+                </span>
+              ) : (
+                <span className="truncate text-xs font-semibold">
+                  {p2Name || "Menunggu pemenang..."}
+                </span>
+              )}
+            </div>
+            {s2Key && !isBye && (
+              <span className={cn(
+                "px-2 py-0.5 rounded text-xs font-mono font-bold shrink-0",
+                p2Wins ? "bg-emerald-600 text-white shadow-2xs" : "bg-slate-100 text-slate-700"
+              )}>
+                {s2 || '-'}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Read-only Bye Slot Card
+  const ReadOnlyByeSlotCard = ({
+    byeLabel,
+    slotKey,
+  }: {
+    byeLabel: string;
+    slotKey: string;
+  }) => {
+    const assignedTeam = bracketData[slotKey]?.trim();
+    return (
+      <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl shadow-xs p-3 w-64 text-left">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="font-mono text-[10px] uppercase font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded">
+            {byeLabel}
+          </span>
+          <span className="text-[10px] text-amber-700 font-bold">★ Lolos Otomatis</span>
+        </div>
+        <p className="text-xs font-bold text-slate-900 truncate">
+          {assignedTeam || "Slot BYE (Menuju R32)"}
+        </p>
+      </div>
+    );
+  };
+
+  // R32 Pair Block (Vertically locks 2 items on left to 1 R32 card on right)
+  const ReadOnlyR32PairBlock = ({
+    topMatch,
+    bottomItem,
+    r32Match,
+    isBye = false,
+  }: {
+    topMatch: { num: number };
+    bottomItem: { type: 'match'; num: number } | { type: 'bye'; label: string; slotKey: string };
+    r32Match: { num: number; p1Key: string; p2Key: string; s1Key: string; s2Key: string; label: string };
+    isBye?: boolean;
+  }) => {
+    return (
+      <div className="flex items-center gap-3">
+        {/* Left Side: 2 Boxes (R64 or BYE) */}
+        <div className="flex flex-col gap-2">
+          {/* Top Item */}
+          <ReadOnlyMatchCard
+            matchLabel={`Match ${topMatch.num} (R64)`}
+            p1Key={`r64_m${topMatch.num}_p1`}
+            p2Key={`r64_m${topMatch.num}_p2`}
+            s1Key={`r64_m${topMatch.num}_s1`}
+            s2Key={`r64_m${topMatch.num}_s2`}
+          />
+
+          {/* Bottom Item */}
+          {bottomItem.type === 'match' ? (
+            <ReadOnlyMatchCard
+              matchLabel={`Match ${bottomItem.num} (R64)`}
+              p1Key={`r64_m${bottomItem.num}_p1`}
+              p2Key={`r64_m${bottomItem.num}_p2`}
+              s1Key={`r64_m${bottomItem.num}_s1`}
+              s2Key={`r64_m${bottomItem.num}_s2`}
+            />
+          ) : (
+            <ReadOnlyByeSlotCard
+              byeLabel={bottomItem.label}
+              slotKey={bottomItem.slotKey}
+            />
+          )}
+        </div>
+
+        {/* Connector Line */}
+        <div className="flex items-center text-slate-300 shrink-0">
+          <div className="w-3 h-px bg-slate-300" />
+          <ArrowRight className="w-3.5 h-3.5 text-red-500 -ml-1" />
+        </div>
+
+        {/* Right Side: 1 Box (R32) - Center aligned */}
+        <ReadOnlyMatchCard
+          matchLabel={r32Match.label}
+          p1Key={r32Match.p1Key}
+          p2Key={r32Match.p2Key}
+          s1Key={r32Match.s1Key}
+          s2Key={r32Match.s2Key}
+          isBye={isBye}
+          byeText="★ BYE (Lolos Langsung)"
+        />
+      </div>
+    );
+  };
+
+  // Quad Tree Component (feeds into 1 QF match)
+  const ReadOnlyQuadTree = ({
+    quadTitle,
+    quadNum,
+    r32Block1,
+    r32Block2,
+    r16TopMatch,
+    r32Block3,
+    r32Block4,
+    r16BottomMatch,
+    qfMatch,
+  }: {
+    quadTitle: string;
+    quadNum: number;
+    r32Block1: React.ReactNode;
+    r32Block2: React.ReactNode;
+    r16TopMatch: { num: number; p1Key: string; p2Key: string; s1Key: string; s2Key: string };
+    r32Block3: React.ReactNode;
+    r32Block4: React.ReactNode;
+    r16BottomMatch: { num: number; p1Key: string; p2Key: string; s1Key: string; s2Key: string };
+    qfMatch: { num: number; p1Key: string; p2Key: string; s1Key: string; s2Key: string };
+  }) => {
+    return (
+      <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+          <span className="font-display font-bold text-xs text-red-700 uppercase tracking-wide">{quadTitle}</span>
+          <span className="text-[10px] font-mono bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">
+            Pemenang Lolos ke Semifinal
+          </span>
+        </div>
+
+        {/* Tree container with horizontal scroll */}
+        <div className="flex items-center gap-4 overflow-x-auto pb-2">
+          
+          {/* Level 1 & 2: R64 and R32 combined */}
+          <div className="flex flex-col gap-6">
+            
+            {/* Top R16 Branch */}
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-2">
+                {r32Block1}
+                {r32Block2}
+              </div>
+
+              {/* Connector to R16 Top Match */}
+              <div className="flex items-center text-slate-300 shrink-0">
+                <div className="w-3 h-px bg-slate-300" />
+                <ArrowRight className="w-3.5 h-3.5 text-red-600 -ml-1" />
+              </div>
+
+              {/* R16 Top Match */}
+              <ReadOnlyMatchCard
+                matchLabel={`M${r16TopMatch.num} (16 Besar)`}
+                p1Key={r16TopMatch.p1Key}
+                p2Key={r16TopMatch.p2Key}
+                s1Key={r16TopMatch.s1Key}
+                s2Key={r16TopMatch.s2Key}
+                stageName="16 Besar"
+              />
+            </div>
+
+            {/* Bottom R16 Branch */}
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-2">
+                {r32Block3}
+                {r32Block4}
+              </div>
+
+              {/* Connector to R16 Bottom Match */}
+              <div className="flex items-center text-slate-300 shrink-0">
+                <div className="w-3 h-px bg-slate-300" />
+                <ArrowRight className="w-3.5 h-3.5 text-red-600 -ml-1" />
+              </div>
+
+              {/* R16 Bottom Match */}
+              <ReadOnlyMatchCard
+                matchLabel={`M${r16BottomMatch.num} (16 Besar)`}
+                p1Key={r16BottomMatch.p1Key}
+                p2Key={r16BottomMatch.p2Key}
+                s1Key={r16BottomMatch.s1Key}
+                s2Key={r16BottomMatch.s2Key}
+                stageName="16 Besar"
+              />
+            </div>
+
+          </div>
+
+          {/* Connector to QF */}
+          <div className="flex items-center text-slate-300 shrink-0">
+            <div className="w-5 h-px bg-red-400" />
+            <ArrowRight className="w-4 h-4 text-red-700 -ml-1" />
+          </div>
+
+          {/* Level 4: QF Match (Perempat Final) */}
+          <div className="space-y-2 shrink-0">
+            <div className="bg-red-800 text-white p-2 rounded-xl text-center shadow-xs">
+              <span className="font-display font-bold text-xs uppercase">Perempat Final {qfMatch.num}</span>
+            </div>
+            <ReadOnlyMatchCard
+              matchLabel={`QF ${qfMatch.num} (Match ${51 + qfMatch.num})`}
+              p1Key={qfMatch.p1Key}
+              p2Key={qfMatch.p2Key}
+              s1Key={qfMatch.s1Key}
+              s2Key={qfMatch.s2Key}
+              stageName="8 Besar"
+            />
+            <p className="text-[10px] text-center text-slate-500 font-mono">
+              ➔ Tiket ke <strong className="text-red-600 font-bold">Semifinal</strong>
+            </p>
+          </div>
+
+        </div>
+      </div>
+    );
+  };
+
+  // All 58 matches generator for List View & Team Search
+  const allMatchesList = useMemo(() => {
+    const list = [];
+
+    // Match 1 - 27 (R64)
+    for (let i = 1; i <= 27; i++) {
+      const isPoolA = i <= 13;
+      list.push({
+        num: i,
+        stage: 'Babak 64 Besar',
+        session: isPoolA ? 'Sesi 1: Pool A (Pagi)' : 'Sesi 2: Pool B (Siang)',
+        time: isPoolA ? '10.00 - 12.30 WIB' : '13.15 - 15.30 WIB',
+        p1: bracketData[`r64_m${i}_p1`] || '',
+        p2: bracketData[`r64_m${i}_p2`] || '',
+        s1: bracketData[`r64_m${i}_s1`] || '',
+        s2: bracketData[`r64_m${i}_s2`] || '',
+      });
+    }
+
+    // Match 28 - 43 (R32)
+    for (let i = 1; i <= 16; i++) {
+      const isPoolA = i <= 8;
+      list.push({
+        num: 27 + i,
+        stage: 'Babak 32 Besar',
+        session: isPoolA ? 'Sesi 1: Pool A (Pagi)' : 'Sesi 2: Pool B (Siang)',
+        time: isPoolA ? '12.30 - 14.30 WIB' : '15.30 - 17.00 WIB',
+        p1: bracketData[`r32_m${i}_p1`] || '',
+        p2: bracketData[`r32_m${i}_p2`] || '',
+        s1: bracketData[`r32_m${i}_s1`] || '',
+        s2: bracketData[`r32_m${i}_s2`] || '',
+      });
+    }
+
+    // Match 44 - 51 (R16)
+    for (let i = 1; i <= 8; i++) {
+      const isPoolA = i <= 4;
+      list.push({
+        num: 43 + i,
+        stage: 'Babak 16 Besar',
+        session: isPoolA ? 'Sesi 1: Pool A (Pagi/Siang)' : 'Sesi 2: Pool B (Sore)',
+        time: isPoolA ? '14.00 - 15.30 WIB' : '16.30 - 18.00 WIB',
+        p1: bracketData[`r16_m${i}_p1`] || '',
+        p2: bracketData[`r16_m${i}_p2`] || '',
+        s1: bracketData[`r16_m${i}_s1`] || '',
+        s2: bracketData[`r16_m${i}_s2`] || '',
+      });
+    }
+
+    // Match 52 - 55 (QF)
+    for (let i = 1; i <= 4; i++) {
+      list.push({
+        num: 51 + i,
+        stage: 'Perempat Final (8 Besar)',
+        session: 'Sesi Malam',
+        time: '18.30 - 19.30 WIB',
+        p1: bracketData[`qf_m${i}_p1`] || '',
+        p2: bracketData[`qf_m${i}_p2`] || '',
+        s1: bracketData[`qf_m${i}_s1`] || '',
+        s2: bracketData[`qf_m${i}_s2`] || '',
+      });
+    }
+
+    // Match 56 & 57 (Semifinals)
+    list.push({
+      num: 56,
+      stage: 'Semifinal 1',
+      session: 'Sesi Malam',
+      time: '19.45 - 20.45 WIB',
+      p1: bracketData['sf_m1_p1'] || '',
+      p2: bracketData['sf_m1_p2'] || '',
+      s1: bracketData['sf_m1_s1'] || '',
+      s2: bracketData['sf_m1_s2'] || '',
+    });
+    list.push({
+      num: 57,
+      stage: 'Semifinal 2',
+      session: 'Sesi Malam',
+      time: '19.45 - 20.45 WIB',
+      p1: bracketData['sf_m2_p1'] || '',
+      p2: bracketData['sf_m2_p2'] || '',
+      s1: bracketData['sf_m2_s1'] || '',
+      s2: bracketData['sf_m2_s2'] || '',
+    });
+
+    // Match 58 (Perebutan Juara 3)
+    list.push({
+      num: 58,
+      stage: 'Perebutan Juara 3',
+      session: 'Sesi Malam',
+      time: '20.45 - 21.30 WIB',
+      p1: bracketData['bronze_m1_p1'] || '',
+      p2: bracketData['bronze_m1_p2'] || '',
+      s1: bracketData['bronze_m1_s1'] || '',
+      s2: bracketData['bronze_m1_s2'] || '',
+    });
+
+    // Match 59 (Grand Final)
+    list.push({
+      num: 59,
+      stage: 'GRAND FINAL (BO5)',
+      session: 'Puncak Acara',
+      time: '21.30 - 23.00 WIB',
+      p1: bracketData['final_m1_p1'] || '',
+      p2: bracketData['final_m1_p2'] || '',
+      s1: bracketData['final_m1_s1'] || '',
+      s2: bracketData['final_m1_s2'] || '',
+    });
+
+    return list;
+  }, [bracketData]);
+
+  // Filtered matches for live search
+  const filteredMatches = useMemo(() => {
+    if (!searchQuery.trim()) return allMatchesList;
+    const q = searchQuery.toLowerCase();
+    return allMatchesList.filter(
+      m => m.p1.toLowerCase().includes(q) || 
+           m.p2.toLowerCase().includes(q) || 
+           m.stage.toLowerCase().includes(q) ||
+           `match ${m.num}`.includes(q)
+    );
+  }, [allMatchesList, searchQuery]);
+
+  return (
+    <div className="space-y-6">
+      {/* Top Banner with Sessions Summary */}
+      <div className="bg-gradient-to-r from-red-950 via-slate-900 to-slate-950 text-white rounded-2xl p-6 shadow-xl border border-red-900/40 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold bg-red-600 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Official Bracket
+              </span>
+              <span className="text-xs font-mono text-slate-300">
+                59 Tim Terdaftar · 5 Slot BYE
+              </span>
+            </div>
+            <h2 className="font-display font-extrabold text-2xl md:text-3xl tracking-tight text-white">
+              Bagan & Jadwal Pertandingan Turnamen
+            </h2>
+            <p className="text-xs md:text-sm text-slate-300 font-body leading-relaxed">
+              Pertandingan dibagi menjadi 2 sesi penyisihan (Sesi 1 Pool A & Sesi 2 Pool B) menuju Babak 8 Besar dan Grand Final. Pantau skor dan jadwal tim kamu secara live di sini!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-display font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition backdrop-blur-xs"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Cetak / PDF</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation View Tabs & Live Search Bar */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
+        {/* Navigation Tabs */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <button
+            onClick={() => setViewMode('poolA')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-display font-bold transition border",
+              viewMode === 'poolA'
+                ? "bg-red-600 border-red-600 text-white shadow-xs"
+                : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+            )}
+          >
+            <Sun className="w-3.5 h-3.5 text-amber-300" />
+            <span>Sesi 1: Pool A (Pagi)</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode('poolB')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-display font-bold transition border",
+              viewMode === 'poolB'
+                ? "bg-slate-900 border-slate-900 text-white shadow-xs"
+                : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+            )}
+          >
+            <Sunset className="w-3.5 h-3.5 text-orange-400" />
+            <span>Sesi 2: Pool B (Siang)</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode('finals')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-display font-bold transition border",
+              viewMode === 'finals'
+                ? "bg-amber-600 border-amber-600 text-white shadow-xs"
+                : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+            )}
+          >
+            <Trophy className="w-3.5 h-3.5 text-yellow-300" />
+            <span>8 Besar & Final</span>
+          </button>
+
+          <button
+            onClick={() => setViewMode('list')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-display font-bold transition border",
+              viewMode === 'list'
+                ? "bg-slate-800 border-slate-800 text-white shadow-xs"
+                : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+            )}
+          >
+            <ListFilter className="w-3.5 h-3.5" />
+            <span>Daftar 58 Match</span>
+          </button>
+        </div>
+
+        {/* Live Search Input */}
+        <div className="relative w-full md:w-64">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Cari nama tim kamu..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition"
+          />
+        </div>
+      </div>
+
+      {/* Search results banner if search active */}
+      {searchQuery.trim() && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3 text-xs flex items-center justify-between">
+          <span>Menampilkan hasil pencarian untuk &ldquo;<strong>{searchQuery}</strong>&rdquo; ({filteredMatches.length} match ditemukan)</span>
+          <button 
+            onClick={() => setSearchQuery('')}
+            className="font-bold underline hover:text-amber-950"
+          >
+            Reset Pencarian
+          </button>
+        </div>
+      )}
+
+      {/* =========================================================================
+          VIEW MODE 1: POOL A (SESI 1 - PAGI)
+         ========================================================================= */}
+      {viewMode === 'poolA' && !searchQuery.trim() && (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-4 rounded-2xl shadow-xs flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Sun className="w-6 h-6 text-amber-300" />
+              <div>
+                <h3 className="font-display font-bold text-base">SESI 1: POOL A (SESI PAGI)</h3>
+                <p className="text-xs text-red-100">29 Tim · Match 1 s/d 13 di R64 · 3 Tim BYE · Menuju QF 1 & QF 2</p>
+              </div>
+            </div>
+            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">10.00 - 14.30 WIB</span>
+          </div>
+
+          {/* QUAD 1 (QF 1) */}
+          <ReadOnlyQuadTree
+            quadTitle="Bagan Pool A - Bagian Atas (Menuju Perempat Final 1)"
+            quadNum={1}
+            r32Block1={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 1 }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot 1', slotKey: 'r32_m1_p2' }}
+                r32Match={{ num: 28, p1Key: 'r32_m1_p1', p2Key: 'r32_m1_p2', s1Key: 'r32_m1_s1', s2Key: 'r32_m1_s2', label: 'M28 (R32-1)' }}
+                isBye={true}
+              />
+            }
+            r32Block2={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 2 }}
+                bottomItem={{ type: 'match', num: 3 }}
+                r32Match={{ num: 29, p1Key: 'r32_m2_p1', p2Key: 'r32_m2_p2', s1Key: 'r32_m2_s1', s2Key: 'r32_m2_s2', label: 'M29 (R32-2)' }}
+              />
+            }
+            r16TopMatch={{ num: 44, p1Key: 'r16_m1_p1', p2Key: 'r16_m1_p2', s1Key: 'r16_m1_s1', s2Key: 'r16_m1_s2' }}
+            r32Block3={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 4 }}
+                bottomItem={{ type: 'match', num: 5 }}
+                r32Match={{ num: 30, p1Key: 'r32_m3_p1', p2Key: 'r32_m3_p2', s1Key: 'r32_m3_s1', s2Key: 'r32_m3_s2', label: 'M30 (R32-3)' }}
+              />
+            }
+            r32Block4={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 6 }}
+                bottomItem={{ type: 'match', num: 7 }}
+                r32Match={{ num: 31, p1Key: 'r32_m4_p1', p2Key: 'r32_m4_p2', s1Key: 'r32_m4_s1', s2Key: 'r32_m4_s2', label: 'M31 (R32-4)' }}
+              />
+            }
+            r16BottomMatch={{ num: 45, p1Key: 'r16_m2_p1', p2Key: 'r16_m2_p2', s1Key: 'r16_m2_s1', s2Key: 'r16_m2_s2' }}
+            qfMatch={{ num: 1, p1Key: 'qf_m1_p1', p2Key: 'qf_m1_p2', s1Key: 'qf_m1_s1', s2Key: 'qf_m1_s2' }}
+          />
+
+          {/* QUAD 2 (QF 2) */}
+          <ReadOnlyQuadTree
+            quadTitle="Bagan Pool A - Bagian Bawah (Menuju Perempat Final 2)"
+            quadNum={2}
+            r32Block1={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 8 }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot 2', slotKey: 'r32_m5_p2' }}
+                r32Match={{ num: 32, p1Key: 'r32_m5_p1', p2Key: 'r32_m5_p2', s1Key: 'r32_m5_s1', s2Key: 'r32_m5_s2', label: 'M32 (R32-5)' }}
+                isBye={true}
+              />
+            }
+            r32Block2={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 9 }}
+                bottomItem={{ type: 'match', num: 10 }}
+                r32Match={{ num: 33, p1Key: 'r32_m6_p1', p2Key: 'r32_m6_p2', s1Key: 'r32_m6_s1', s2Key: 'r32_m6_s2', label: 'M33 (R32-6)' }}
+              />
+            }
+            r16TopMatch={{ num: 46, p1Key: 'r16_m3_p1', p2Key: 'r16_m3_p2', s1Key: 'r16_m3_s1', s2Key: 'r16_m3_s2' }}
+            r32Block3={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 11 }}
+                bottomItem={{ type: 'match', num: 12 }}
+                r32Match={{ num: 34, p1Key: 'r32_m7_p1', p2Key: 'r32_m7_p2', s1Key: 'r32_m7_s1', s2Key: 'r32_m7_s2', label: 'M34 (R32-7)' }}
+              />
+            }
+            r32Block4={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 13 }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot 3', slotKey: 'r32_m8_p2' }}
+                r32Match={{ num: 35, p1Key: 'r32_m8_p1', p2Key: 'r32_m8_p2', s1Key: 'r32_m8_s1', s2Key: 'r32_m8_s2', label: 'M35 (R32-8)' }}
+                isBye={true}
+              />
+            }
+            r16BottomMatch={{ num: 47, p1Key: 'r16_m4_p1', p2Key: 'r16_m4_p2', s1Key: 'r16_m4_s1', s2Key: 'r16_m4_s2' }}
+            qfMatch={{ num: 2, p1Key: 'qf_m2_p1', p2Key: 'qf_m2_p2', s1Key: 'qf_m2_s1', s2Key: 'qf_m2_s2' }}
+          />
+        </div>
+      )}
+
+      {/* =========================================================================
+          VIEW MODE 2: POOL B (SESI 2 - SIANG)
+         ========================================================================= */}
+      {viewMode === 'poolB' && !searchQuery.trim() && (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-4 rounded-2xl shadow-xs flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Sunset className="w-6 h-6 text-orange-400" />
+              <div>
+                <h3 className="font-display font-bold text-base">SESI 2: POOL B (SESI SIANG/SORE)</h3>
+                <p className="text-xs text-slate-300">30 Tim · Match 14 s/d 27 di R64 · 2 Tim BYE · Menuju QF 3 & QF 4</p>
+              </div>
+            </div>
+            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">13.15 - 17.00 WIB</span>
+          </div>
+
+          {/* QUAD 3 (QF 3) */}
+          <ReadOnlyQuadTree
+            quadTitle="Bagan Pool B - Bagian Atas (Menuju Perempat Final 3)"
+            quadNum={3}
+            r32Block1={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 14 }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot 4', slotKey: 'r32_m9_p2' }}
+                r32Match={{ num: 36, p1Key: 'r32_m9_p1', p2Key: 'r32_m9_p2', s1Key: 'r32_m9_s1', s2Key: 'r32_m9_s2', label: 'M36 (R32-9)' }}
+                isBye={true}
+              />
+            }
+            r32Block2={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 15 }}
+                bottomItem={{ type: 'match', num: 16 }}
+                r32Match={{ num: 37, p1Key: 'r32_m10_p1', p2Key: 'r32_m10_p2', s1Key: 'r32_m10_s1', s2Key: 'r32_m10_s2', label: 'M37 (R32-10)' }}
+              />
+            }
+            r16TopMatch={{ num: 48, p1Key: 'r16_m5_p1', p2Key: 'r16_m5_p2', s1Key: 'r16_m5_s1', s2Key: 'r16_m5_s2' }}
+            r32Block3={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 17 }}
+                bottomItem={{ type: 'match', num: 18 }}
+                r32Match={{ num: 38, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M38 (R32-11)' }}
+              />
+            }
+            r32Block4={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 19 }}
+                bottomItem={{ type: 'match', num: 20 }}
+                r32Match={{ num: 39, p1Key: 'r32_m12_p1', p2Key: 'r32_m12_p2', s1Key: 'r32_m12_s1', s2Key: 'r32_m12_s2', label: 'M39 (R32-12)' }}
+              />
+            }
+            r16BottomMatch={{ num: 49, p1Key: 'r16_m6_p1', p2Key: 'r16_m6_p2', s1Key: 'r16_m6_s1', s2Key: 'r16_m6_s2' }}
+            qfMatch={{ num: 3, p1Key: 'qf_m3_p1', p2Key: 'qf_m3_p2', s1Key: 'qf_m3_s1', s2Key: 'qf_m3_s2' }}
+          />
+
+          {/* QUAD 4 (QF 4) */}
+          <ReadOnlyQuadTree
+            quadTitle="Bagan Pool B - Bagian Bawah (Menuju Perempat Final 4)"
+            quadNum={4}
+            r32Block1={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 21 }}
+                bottomItem={{ type: 'bye', label: 'BYE Slot 5', slotKey: 'r32_m13_p2' }}
+                r32Match={{ num: 40, p1Key: 'r32_m13_p1', p2Key: 'r32_m13_p2', s1Key: 'r32_m13_s1', s2Key: 'r32_m13_s2', label: 'M40 (R32-13)' }}
+                isBye={true}
+              />
+            }
+            r32Block2={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 22 }}
+                bottomItem={{ type: 'match', num: 23 }}
+                r32Match={{ num: 41, p1Key: 'r32_m14_p1', p2Key: 'r32_m14_p2', s1Key: 'r32_m14_s1', s2Key: 'r32_m14_s2', label: 'M41 (R32-14)' }}
+              />
+            }
+            r16TopMatch={{ num: 50, p1Key: 'r16_m7_p1', p2Key: 'r16_m7_p2', s1Key: 'r16_m7_s1', s2Key: 'r16_m7_s2' }}
+            r32Block3={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 24 }}
+                bottomItem={{ type: 'match', num: 25 }}
+                r32Match={{ num: 42, p1Key: 'r32_m15_p1', p2Key: 'r32_m15_p2', s1Key: 'r32_m15_s1', s2Key: 'r32_m15_s2', label: 'M42 (R32-15)' }}
+              />
+            }
+            r32Block4={
+              <ReadOnlyR32PairBlock
+                topMatch={{ num: 26 }}
+                bottomItem={{ type: 'match', num: 27 }}
+                r32Match={{ num: 43, p1Key: 'r32_m16_p1', p2Key: 'r32_m16_p2', s1Key: 'r32_m16_s1', s2Key: 'r32_m16_s2', label: 'M43 (R32-16)' }}
+              />
+            }
+            r16BottomMatch={{ num: 51, p1Key: 'r16_m8_p1', p2Key: 'r16_m8_p2', s1Key: 'r16_m8_s1', s2Key: 'r16_m8_s2' }}
+            qfMatch={{ num: 4, p1Key: 'qf_m4_p1', p2Key: 'qf_m4_p2', s1Key: 'qf_m4_s1', s2Key: 'qf_m4_s2' }}
+          />
+        </div>
+      )}
+
+      {/* =========================================================================
+          VIEW MODE 3: FINALS (8 BESAR, SEMIFINAL & GRAND FINAL)
+         ========================================================================= */}
+      {viewMode === 'finals' && !searchQuery.trim() && (
+        <div className="space-y-8">
+          {/* Podium Juara (jika sudah ada) */}
+          <div className="bg-gradient-to-r from-amber-500/10 via-red-500/10 to-amber-500/10 border border-amber-200 rounded-3xl p-6 shadow-sm">
+            <div className="text-center space-y-1 mb-6">
+              <span className="text-xs font-mono font-bold text-amber-700 bg-amber-100 px-3 py-1 rounded-full uppercase">
+                Hall of Champions
+              </span>
+              <h3 className="font-display font-bold text-2xl text-slate-900">
+                Panggung Juara Fiesta Historia 2026 🏆
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto items-end">
+              {/* Juara 2 */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center shadow-xs order-2 md:order-1">
+                <div className="w-12 h-12 mx-auto rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-slate-600 font-display font-bold text-lg mb-2">
+                  🥈 2
+                </div>
+                <p className="text-xs text-slate-400 font-mono font-bold uppercase">Runner Up</p>
+                <p className="font-display font-bold text-base text-slate-900 mt-1">
+                  {bracketData['champion_2'] || bracketData['final_m1_p2'] || 'Menunggu Hasil...'}
+                </p>
+                <p className="text-xs font-mono text-slate-500 mt-0.5">Hadiah Rp 3.000.000</p>
+              </div>
+
+              {/* Juara 1 */}
+              <div className="bg-gradient-to-b from-amber-50 to-white border-2 border-amber-400 rounded-2xl p-6 text-center shadow-lg order-1 md:order-2 -mt-4">
+                <Crown className="w-8 h-8 text-amber-500 mx-auto mb-1 animate-bounce" />
+                <div className="w-14 h-14 mx-auto rounded-full bg-amber-400 text-slate-950 flex items-center justify-center font-display font-extrabold text-2xl mb-2 shadow-md">
+                  🥇 1
+                </div>
+                <p className="text-xs text-amber-700 font-mono font-bold uppercase">Juara 1 Turnamen</p>
+                <p className="font-display font-extrabold text-lg text-slate-900 mt-1">
+                  {bracketData['champion_1'] || 'Menunggu Juara...'}
+                </p>
+                <p className="text-xs font-mono font-bold text-amber-600 mt-0.5">Hadiah Rp 4.000.000 + Trophy</p>
+              </div>
+
+              {/* Juara 3 */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center shadow-xs order-3">
+                <div className="w-12 h-12 mx-auto rounded-full bg-orange-50 border-2 border-orange-200 flex items-center justify-center text-orange-700 font-display font-bold text-lg mb-2">
+                  🥉 3
+                </div>
+                <p className="text-xs text-slate-400 font-mono font-bold uppercase">Juara 3</p>
+                <p className="font-display font-bold text-base text-slate-900 mt-1">
+                  {bracketData['champion_3'] || 'Menunggu Hasil...'}
+                </p>
+                <p className="text-xs font-mono text-slate-500 mt-0.5">Hadiah Rp 2.000.000</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Finals Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            {/* QF Column */}
+            <div className="space-y-4">
+              <div className="bg-red-50 border border-red-200 p-2.5 rounded-xl text-center font-display font-bold text-xs text-red-700">
+                PEREMPAT FINAL (8 BESAR)
+              </div>
+              <div className="space-y-4">
+                {Array.from({ length: 4 }, (_, i) => {
+                  const m = i + 1;
+                  return (
+                    <ReadOnlyMatchCard
+                      key={`public-finals-qf-${m}`}
+                      matchLabel={`QF ${m} (Match ${51 + m})`}
+                      p1Key={`qf_m${m}_p1`}
+                      p2Key={`qf_m${m}_p2`}
+                      s1Key={`qf_m${m}_s1`}
+                      s2Key={`qf_m${m}_s2`}
+                      stageName="8 Besar"
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Semifinals Column */}
+            <div className="space-y-4">
+              <div className="bg-orange-50 border border-orange-200 p-2.5 rounded-xl text-center font-display font-bold text-xs text-orange-700">
+                SEMIFINAL (4 BESAR)
+              </div>
+              <div className="space-y-8 pt-4">
+                <ReadOnlyMatchCard
+                  matchLabel="Semifinal 1 (Match 56)"
+                  p1Key="sf_m1_p1"
+                  p2Key="sf_m1_p2"
+                  s1Key="sf_m1_s1"
+                  s2Key="sf_m1_s2"
+                  stageName="Semifinal"
+                />
+
+                <ReadOnlyMatchCard
+                  matchLabel="Semifinal 2 (Match 57)"
+                  p1Key="sf_m2_p1"
+                  p2Key="sf_m2_p2"
+                  s1Key="sf_m2_s1"
+                  s2Key="sf_m2_s2"
+                  stageName="Semifinal"
+                />
+              </div>
+            </div>
+
+            {/* Finals & Bronze Column */}
+            <div className="space-y-4">
+              <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-center font-display font-bold text-xs text-amber-700">
+                GRAND FINAL & BRONZE
+              </div>
+              <div className="space-y-6 pt-2">
+                {/* Grand Final */}
+                <div className="border-2 border-red-600 rounded-2xl p-1 bg-red-600/5 shadow-md">
+                  <div className="text-center py-1 text-[11px] font-display font-bold text-red-700">
+                    👑 PEREBUTAN JUARA 1 & 2 (BO5)
+                  </div>
+                  <ReadOnlyMatchCard
+                    matchLabel="Grand Final (Match 59)"
+                    p1Key="final_m1_p1"
+                    p2Key="final_m1_p2"
+                    s1Key="final_m1_s1"
+                    s2Key="final_m1_s2"
+                    stageName="Grand Final"
+                  />
+                </div>
+
+                {/* Bronze Match */}
+                <div className="border border-amber-300 rounded-2xl p-1 bg-amber-500/5 shadow-xs">
+                  <div className="text-center py-1 text-[11px] font-display font-bold text-amber-800">
+                    🥉 PEREBUTAN JUARA 3 (BO3)
+                  </div>
+                  <ReadOnlyMatchCard
+                    matchLabel="Bronze Match (Match 58)"
+                    p1Key="bronze_m1_p1"
+                    p2Key="bronze_m1_p2"
+                    s1Key="bronze_m1_s1"
+                    s2Key="bronze_m1_s2"
+                    stageName="Perebutan Juara 3"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          VIEW MODE 4 / SEARCH: LIST ALL 58 MATCHES
+         ========================================================================= */}
+      {(viewMode === 'list' || searchQuery.trim()) && (
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+          <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+            <div>
+              <h3 className="font-display font-bold text-sm">Daftar Seluruh 58 Pertandingan Turnamen</h3>
+              <p className="text-xs text-slate-300">Format Single Elimination 59 Tim Mobile Legends Bang Bang</p>
+            </div>
+            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">
+              {filteredMatches.length} Match Ditampilkan
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-500 font-mono uppercase text-[10px] border-b border-slate-200">
+                <tr>
+                  <th className="px-4 py-3">No</th>
+                  <th className="px-4 py-3">Babak</th>
+                  <th className="px-4 py-3">Sesi / Waktu</th>
+                  <th className="px-4 py-3">Tim 1 (Merah)</th>
+                  <th className="px-4 py-3 text-center">Skor</th>
+                  <th className="px-4 py-3">Tim 2 (Biru)</th>
+                  <th className="px-4 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-body">
+                {filteredMatches.map((m) => {
+                  const hasWinner = (m.s1 && m.s2) && (parseInt(m.s1) !== parseInt(m.s2));
+                  const isBye = m.p2.toLowerCase().includes('bye') || m.p1.toLowerCase().includes('bye');
+                  return (
+                    <tr key={`match-row-${m.num}`} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="px-4 py-3 font-mono font-bold text-slate-900">
+                        M{m.num}
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-slate-700">
+                        {m.stage}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        <span className="font-medium text-slate-800">{m.session}</span>
+                        <span className="block text-[10px] text-slate-400 font-mono">{m.time}</span>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-slate-900">
+                        {m.p1 || <span className="text-slate-400 italic">Menunggu pemenang...</span>}
+                      </td>
+                      <td className="px-4 py-3 text-center font-mono font-bold">
+                        {m.s1 || m.s2 ? (
+                          <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-800">
+                            {m.s1 || '0'} - {m.s2 || '0'}
+                          </span>
+                        ) : (
+                          <span className="text-slate-300">-</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-slate-900">
+                        {isBye ? (
+                          <span className="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded text-[11px]">
+                            ★ {m.p2 || 'BYE'}
+                          </span>
+                        ) : (
+                          m.p2 || <span className="text-slate-400 italic">Menunggu pemenang...</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {hasWinner ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                            ✓ Selesai
+                          </span>
+                        ) : isBye ? (
+                          <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+                            ★ BYE
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-mono text-slate-400">
+                            Terjadwal
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

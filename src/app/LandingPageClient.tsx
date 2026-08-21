@@ -9,8 +9,11 @@ import {
 import TournamentHeader from '@/components/TournamentHeader';
 import NeonButton from '@/components/ui/NeonButton';
 
+import PublicBracketView from '@/components/bracket/PublicBracketView';
+
 interface LandingPageClientProps {
   remainingSlots: number;
+  initialBracketData?: Record<string, string>;
 }
 
 interface TimelineItemProps {
@@ -46,7 +49,7 @@ function TimelineItem({ time, title, location, highlight = false }: TimelineItem
   );
 }
 
-export default function LandingPageClient({ remainingSlots }: LandingPageClientProps) {
+export default function LandingPageClient({ remainingSlots, initialBracketData }: LandingPageClientProps) {
   const [activeTab, setActiveTab] = useState<'day1' | 'day2'>('day1');
 
   return (
@@ -77,7 +80,11 @@ export default function LandingPageClient({ remainingSlots }: LandingPageClientP
           <nav className="hidden md:flex items-center gap-6">
             <a href="#" className="text-sm font-body font-semibold text-red-600 hover:text-red-700 transition-colors">Beranda</a>
             <a href="#about" className="text-sm font-body font-medium text-slate-500 hover:text-red-600 transition-colors">Tentang & Aturan</a>
-            <a href="#hadiah" className="text-sm font-body font-medium text-slate-500 hover:text-red-600 transition-colors">Hadiah & Jadwal</a>
+            <a href="#hadiah" className="text-sm font-body font-medium text-slate-500 hover:text-red-600 transition-colors">Hadiah & Biaya</a>
+            <a href="#bracket" className="text-sm font-body font-medium text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1">
+              <Trophy className="w-3.5 h-3.5 text-red-600" />
+              <span>Bagan Turnamen</span>
+            </a>
             <a href="#festival" className="text-sm font-body font-medium text-slate-500 hover:text-red-600 transition-colors">Festival Rakyat</a>
           </nav>
 
@@ -105,7 +112,7 @@ export default function LandingPageClient({ remainingSlots }: LandingPageClientP
       </div>
 
       {/* Landing Page Content Sections */}
-      <div className="max-w-4xl mx-auto px-4 py-12 space-y-16">
+      <div className="max-w-5xl mx-auto px-4 py-12 space-y-16">
         {/* Section: Tentang & Aturan */}
         <section id="about" className="space-y-6 scroll-mt-20">
           <div className="text-center space-y-2">
@@ -251,6 +258,25 @@ export default function LandingPageClient({ remainingSlots }: LandingPageClientP
               </Link>
             </div>
           </div>
+        </section>
+
+        {/* Section: Bagan Turnamen & Jadwal (Read-Only untuk Publik) */}
+        <section id="bracket" className="space-y-6 scroll-mt-20">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-mono font-bold text-red-600 bg-red-50 border border-red-100 px-3 py-1 rounded-full uppercase">
+              Bagan Pertandingan
+            </span>
+            <h2 className="font-display font-bold text-3xl text-slate-900">
+              Bagan Turnamen & Jadwal 59 Tim
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 font-body max-w-xl mx-auto">
+              Pantau pembagian bagan Pool A (Pagi), Pool B (Siang), 8 Besar & Grand Final, atau cari jadwal pertandingan tim kamu secara langsung.
+            </p>
+            <div className="w-12 h-1 bg-red-600 mx-auto rounded-full" />
+          </div>
+
+          {/* Render Read-Only Public Bracket */}
+          <PublicBracketView initialData={initialBracketData} />
         </section>
 
         {/* Section: Festival Rakyat */}

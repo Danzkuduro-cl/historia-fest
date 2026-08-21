@@ -60,6 +60,18 @@ export default function TournamentHeader({ remainingSlots }: TournamentHeaderPro
             <p className="font-body text-slate-500 text-xs md:text-sm">
               Mobile Legends Bang Bang · Turnamen Resmi Kabupaten Magelang
             </p>
+            
+            {/* Quick link to #bracket */}
+            <div className="pt-2 flex justify-center">
+              <a
+                href="#bracket"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-display font-bold border border-red-200 transition-all shadow-2xs group"
+              >
+                <Trophy className="w-4 h-4 text-red-600 group-hover:scale-110 transition-transform" />
+                <span>Lihat Bagan Turnamen (59 Tim)</span>
+                <ArrowRight className="w-3.5 h-3.5 -ml-0.5" />
+              </a>
+            </div>
           </div>
         </div>
 

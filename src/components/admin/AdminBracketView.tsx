@@ -4,10 +4,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Trophy, RotateCcw, Shuffle, Sparkles, 
   Printer, Crown, Sun, Sunset, 
-  Search, LayoutGrid, ListFilter, ArrowRight
+  Search, LayoutGrid, ListFilter, ArrowRight, Save
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
+import { saveBracketStateToDb, getBracketStateFromDb } from '@/lib/bracket-actions';
 
 interface TeamItem {
   id: string;
@@ -27,28 +28,60 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
   const [viewMode, setViewMode] = useState<'poolA' | 'poolB' | 'finals' | 'full' | 'list'>('poolA');
   const [searchQuery, setSearchQuery] = useState('');
   const [showResetModal, setShowResetModal] = useState(false);
+  const [isSavingDb, setIsSavingDb] = useState(false);
 
-  // Load from localStorage
+  // Load from localStorage or DB
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setBracketData(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Object.keys(parsed).length > 0) {
+          setBracketData(parsed);
+          return;
+        }
       }
     } catch (e) {
       console.error('Failed to load bracket data', e);
     }
+
+    // Fallback load from DB
+    getBracketStateFromDb().then(dbData => {
+      if (dbData && Object.keys(dbData).length > 0) {
+        setBracketData(dbData);
+      }
+    });
   }, []);
+
+  const persistData = (data: Record<string, string>) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {}
+    // Background sync to DB
+    saveBracketStateToDb(data);
+  };
+
+  const handleManualSaveDb = async () => {
+    setIsSavingDb(true);
+    try {
+      const res = await saveBracketStateToDb(bracketData);
+      if (res?.error) {
+        toast.error('Gagal menyimpan ke server: ' + res.error);
+      } else {
+        toast.success('Bagan berhasil disimpan & disinkronkan ke Landing Page Publik!', { icon: '🌐' });
+      }
+    } catch (err: any) {
+      toast.error('Gagal: ' + err.message);
+    } finally {
+      setIsSavingDb(false);
+    }
+  };
 
   // Update a single slot
   const updateSlot = (key: string, value: string) => {
     setBracketData(prev => {
       const updated = { ...prev, [key]: value };
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch (e) {
-        console.error('Failed to save to localStorage', e);
-      }
+      persistData(updated);
       return updated;
     });
   };
@@ -56,11 +89,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
   // Bulk update
   const saveBulkData = (data: Record<string, string>) => {
     setBracketData(data);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {
-      console.error('Failed to save bulk data', e);
-    }
+    persistData(data);
   };
 
   // Advance team helper with visual animation
@@ -707,6 +736,16 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
 
         {/* Quick buttons */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleManualSaveDb}
+            disabled={isSavingDb}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition disabled:opacity-50"
+            title="Simpan perubahan ke database agar tampil di Landing Page publik"
+          >
+            <Save className="w-3.5 h-3.5" />
+            <span>{isSavingDb ? 'Menyimpan...' : 'Simpan Publik'}</span>
+          </button>
+
           <button
             onClick={() => handleAutoFill(false)}
             className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg border border-slate-300 transition"
