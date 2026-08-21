@@ -580,16 +580,38 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
     sfTargetKey: string;
   }) => {
     return (
-      <div className="bg-slate-50/70 border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <span className="font-display font-bold text-xs text-red-700 uppercase">{quadTitle}</span>
-          <span className="text-[10px] font-mono bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 md:p-5 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-600 inline-block" />
+            <span className="font-display font-bold text-xs md:text-sm text-slate-900 uppercase tracking-wide">{quadTitle}</span>
+          </div>
+          <span className="text-[10px] font-mono bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full font-bold">
             Pemenang ke Semifinal
           </span>
         </div>
 
+        {/* Column Stage Headers */}
+        <div className="flex items-center gap-4 overflow-x-auto text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider pb-1">
+          <div className="w-[250px] shrink-0 text-center bg-slate-100/80 py-1.5 rounded-lg border border-slate-200/60">
+            1. Babak 64 Besar
+          </div>
+          <div className="w-4 shrink-0" />
+          <div className="w-[250px] shrink-0 text-center bg-slate-100/80 py-1.5 rounded-lg border border-slate-200/60">
+            2. Babak 32 Besar
+          </div>
+          <div className="w-4 shrink-0" />
+          <div className="w-[250px] shrink-0 text-center bg-slate-100/80 py-1.5 rounded-lg border border-slate-200/60">
+            3. Babak 16 Besar
+          </div>
+          <div className="w-6 shrink-0" />
+          <div className="w-[250px] shrink-0 text-center bg-red-50 py-1.5 rounded-lg border border-red-200 text-red-800">
+            4. Perempat Final (QF)
+          </div>
+        </div>
+
         {/* Tree container with perfect flex centering */}
-        <div className="flex items-center gap-4 overflow-x-auto pb-2">
+        <div className="flex items-center gap-4 overflow-x-auto pb-3 pt-1">
           
           {/* Level 1 & 2: R64 and R32 combined */}
           <div className="flex flex-col gap-6">
