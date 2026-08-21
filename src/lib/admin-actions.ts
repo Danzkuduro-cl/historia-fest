@@ -124,11 +124,13 @@ export async function getDashboardStats() {
   const { count: paidTeams } = await supabase
     .from('teams')
     .select('*', { count: 'exact', head: true })
+    .neq('registration_code', 'SYS-BRK')
     .eq('payment_status', 'paid');
 
   const { count: pendingTeams } = await supabase
     .from('teams')
     .select('*', { count: 'exact', head: true })
+    .neq('registration_code', 'SYS-BRK')
     .eq('payment_status', 'pending');
 
   const totalRevenue = (paidTeams || 0) * parseInt(process.env.NEXT_PUBLIC_REGISTRATION_FEE || '50000');

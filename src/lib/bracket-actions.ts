@@ -79,7 +79,7 @@ export async function saveBracketStateToDb(bracketData: Record<string, string>) 
           captain_name: 'Admin',
           whatsapp: '0800000000',
           logo_url: jsonString,
-          payment_status: 'paid',
+          payment_status: 'failed',
         })
         .eq('id', existing.id);
 
@@ -93,7 +93,7 @@ export async function saveBracketStateToDb(bracketData: Record<string, string>) 
           captain_name: 'Admin',
           whatsapp: '0800000000',
           logo_url: jsonString,
-          payment_status: 'paid',
+          payment_status: 'failed',
         });
 
       if (insertError) throw insertError;
