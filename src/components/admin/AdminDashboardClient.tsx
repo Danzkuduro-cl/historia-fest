@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import {
@@ -14,6 +15,7 @@ import AdminStatCard from '@/components/admin/AdminStatCard';
 import TeamDetailModal from '@/components/admin/TeamDetailModal';
 import TeamCreateModal from '@/components/admin/TeamCreateModal';
 import TeamEditModal from '@/components/admin/TeamEditModal';
+import AdminBracketView from '@/components/admin/AdminBracketView';
 import NeonButton from '@/components/ui/NeonButton';
 import { adminLogout, updatePaymentStatus, deleteTeam } from '@/lib/admin-actions';
 import { formatCurrency, getPaymentStatusColor, getPaymentStatusLabel, formatDate } from '@/lib/utils';
@@ -76,6 +78,7 @@ export default function AdminDashboardClient({ teams: initialTeams, stats, avail
   const [confirmDelete, setConfirmDelete] = useState<Team | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [mainTab, setMainTab] = useState<'teams' | 'bracket'>('teams');
 
   const filtered = initialTeams.filter((team) => {
     const matchSearch =
@@ -222,7 +225,39 @@ export default function AdminDashboardClient({ teams: initialTeams, stats, avail
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Stats */}
+        {/* Navigation Tabs (Data Tim vs Bagan Turnamen) */}
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+          <button
+            onClick={() => setMainTab('teams')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-display font-bold transition border",
+              mainTab === 'teams'
+                ? "bg-slate-900 border-slate-900 text-white shadow-xs"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            )}
+          >
+            <Users className="w-4 h-4" />
+            <span>Data & Manajemen Tim ({initialTeams.length})</span>
+          </button>
+          
+          <button
+            onClick={() => setMainTab('bracket')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-display font-bold transition border",
+              mainTab === 'bracket'
+                ? "bg-red-600 border-red-600 text-white shadow-xs"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            )}
+          >
+            <Trophy className="w-4 h-4 text-amber-300" />
+            <span>Bagan Turnamen (59 Tim)</span>
+          </button>
+        </div>
+
+        {/* Tab 1: Teams Management */}
+        {mainTab === 'teams' && (
+          <div className="space-y-6">
+            {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <AdminStatCard
             label="Total Tim"
@@ -482,6 +517,13 @@ export default function AdminDashboardClient({ teams: initialTeams, stats, avail
             )}
           </div>
         </div>
+      </div>
+    )}
+
+        {/* Tab 2: Tournament Bracket */}
+        {mainTab === 'bracket' && (
+          <AdminBracketView teams={initialTeams} />
+        )}
       </main>
 
       {/* Confirm Delete Modal */}

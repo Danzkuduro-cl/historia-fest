@@ -44,6 +44,7 @@ const emptyPlayer = (): Player => ({
 });
 
 export default function TeamEditModal({ team, onClose, onSuccess }: TeamEditModalProps) {
+  const [teamName, setTeamName] = useState(team.team_name);
   const [captainName, setCaptainName] = useState(team.captain_name);
   const [whatsapp, setWhatsapp] = useState(team.whatsapp);
   
@@ -54,6 +55,10 @@ export default function TeamEditModal({ team, onClose, onSuccess }: TeamEditModa
   const [error, setError] = useState('');
 
   useEffect(() => {
+    setTeamName(team.team_name);
+    setCaptainName(team.captain_name);
+    setWhatsapp(team.whatsapp);
+
     const cores = [...team.players].filter(p => p.player_type === 'core').sort((a, b) => a.player_order - b.player_order);
     const subs = [...team.players].filter(p => p.player_type === 'substitute').sort((a, b) => a.player_order - b.player_order);
     
@@ -81,6 +86,13 @@ export default function TeamEditModal({ team, onClose, onSuccess }: TeamEditModa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!teamName.trim()) {
+      setError('Nama tim tidak boleh kosong.');
+      toast.error('Nama tim tidak boleh kosong.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -107,6 +119,7 @@ export default function TeamEditModal({ team, onClose, onSuccess }: TeamEditModa
       ];
 
       const result = await updateTeamAndPlayers(team.id, {
+        team_name: teamName.trim(),
         captain_name: captainName,
         whatsapp: whatsapp,
         players: payloadPlayers,
@@ -157,18 +170,24 @@ export default function TeamEditModal({ team, onClose, onSuccess }: TeamEditModa
               </div>
             )}
 
-            {/* Read-only info */}
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-1">
-              <span className="font-mono text-xs text-slate-500 uppercase tracking-wider">Nama Tim</span>
-              <span className="font-display font-semibold text-lg text-slate-900">{team.team_name}</span>
-            </div>
-
             {/* General Info */}
             <div className="space-y-4">
               <h3 className="font-display font-bold text-lg text-slate-900 flex items-center gap-2">
                 <Shield className="w-5 h-5 text-red-600" />
-                Informasi Umum
+                Informasi Tim & Kapten
               </h3>
+
+              <div className="space-y-1.5">
+                <label className="font-mono text-xs text-slate-600 uppercase tracking-wider">Nama Tim</label>
+                <input
+                  type="text"
+                  value={teamName}
+                  onChange={e => setTeamName(e.target.value)}
+                  required
+                  placeholder="Masukkan nama tim..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 font-display font-bold text-base focus:outline-none focus:ring-2 focus:ring-red-600/20 focus:border-red-600 transition-all"
+                />
+              </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">

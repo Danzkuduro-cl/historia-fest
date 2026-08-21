@@ -257,3 +257,27 @@ export async function cancelRegistration(teamId: string) {
 
   return { success: true };
 }
+
+export interface BracketTeamData {
+  id: string;
+  team_name: string;
+  captain_name: string;
+  logo_url?: string;
+  registration_code: string;
+  payment_status: string;
+}
+
+export async function getRegisteredTeamsForBracket(): Promise<BracketTeamData[]> {
+  const supabase = createServerSupabase();
+  const { data, error } = await supabase
+    .from('teams')
+    .select('id, team_name, captain_name, logo_url, registration_code, payment_status')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching teams for bracket:', error);
+    return [];
+  }
+
+  return data || [];
+}

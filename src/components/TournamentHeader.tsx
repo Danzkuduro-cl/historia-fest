@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { getTimeRemaining, formatCurrency, getWhatsAppUrl } from '@/lib/utils';
-import { MessageCircle, Trophy, Users, Calendar, Zap } from 'lucide-react';
+import { MessageCircle, Trophy, Users, Calendar, Zap, ArrowRight } from 'lucide-react';
 
 interface TournamentHeaderProps {
   remainingSlots: number;

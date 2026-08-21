@@ -293,6 +293,7 @@ export async function createTeamManual(payload: AdminCreateTeamPayload) {
 // ── Admin Update Team & Players ─────────────────────────────────
 
 export interface AdminUpdateTeamPayload {
+  team_name?: string;
   captain_name: string;
   whatsapp: string;
   players: Array<{
@@ -308,13 +309,19 @@ export interface AdminUpdateTeamPayload {
 export async function updateTeamAndPlayers(teamId: string, payload: AdminUpdateTeamPayload) {
   const supabase = createServerSupabase();
 
+  const updateData: Record<string, any> = {
+    captain_name: payload.captain_name,
+    whatsapp: payload.whatsapp,
+  };
+
+  if (payload.team_name) {
+    updateData.team_name = payload.team_name;
+  }
+
   // Update team info
   const { error: teamError } = await supabase
     .from('teams')
-    .update({
-      captain_name: payload.captain_name,
-      whatsapp: payload.whatsapp,
-    })
+    .update(updateData)
     .eq('id', teamId);
 
   if (teamError) {
