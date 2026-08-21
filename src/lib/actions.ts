@@ -272,6 +272,7 @@ export async function getRegisteredTeamsForBracket(): Promise<BracketTeamData[]>
   const { data, error } = await supabase
     .from('teams')
     .select('id, team_name, captain_name, logo_url, registration_code, payment_status')
+    .neq('registration_code', 'SYS-BRK')
     .order('created_at', { ascending: true });
 
   if (error) {

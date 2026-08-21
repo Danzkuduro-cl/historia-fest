@@ -54,6 +54,7 @@ export async function getAllTeams(filters?: {
       players (*),
       payments (*)
     `)
+    .neq('registration_code', 'SYS-BRK')
     .order('created_at', { ascending: false });
 
   if (filters?.search) {
@@ -117,7 +118,8 @@ export async function getDashboardStats() {
 
   const { count: totalTeams } = await supabase
     .from('teams')
-    .select('*', { count: 'exact', head: true });
+    .select('*', { count: 'exact', head: true })
+    .neq('registration_code', 'SYS-BRK');
 
   const { count: paidTeams } = await supabase
     .from('teams')
