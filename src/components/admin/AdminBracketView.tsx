@@ -817,7 +817,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
                 <p className="text-xs text-red-100">29 Tim · Match 1 s/d 13 di R64 · 3 Tim BYE · Sejajar Presisi ke QF 1 & QF 2</p>
               </div>
             </div>
-            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">10.00 - 14.30 WIB</span>
+            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">Sesi Pagi</span>
           </div>
 
           {/* QUAD 1 (QF 1) */}
@@ -923,7 +923,7 @@ export default function AdminBracketView({ teams }: AdminBracketViewProps) {
                 <p className="text-xs text-slate-300">30 Tim · Match 14 s/d 27 di R64 · 2 Tim BYE · Sejajar Presisi ke QF 3 & QF 4</p>
               </div>
             </div>
-            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">13.15 - 17.00 WIB</span>
+            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold">Sesi Siang</span>
           </div>
 
           {/* QUAD 3 (QF 3) */}

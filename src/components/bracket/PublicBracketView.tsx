@@ -673,7 +673,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 <p className="text-xs text-red-100">29 Tim · Match 1 s/d 13 di R64 · 3 Tim BYE · Menuju QF 1 & QF 2</p>
               </div>
             </div>
-            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold shrink-0">10.00 - 14.30 WIB</span>
+            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold shrink-0">Sesi Pagi</span>
           </div>
 
           {/* QUAD 1 (QF 1) */}
@@ -682,32 +682,32 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             quadNum={1}
             r32Block1={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 1, time: "10.00 WIB" }}
+                topMatch={{ num: 1 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 1', slotKey: 'r32_m1_p2' }}
-                r32Match={{ num: 28, p1Key: 'r32_m1_p1', p2Key: 'r32_m1_p2', s1Key: 'r32_m1_s1', s2Key: 'r32_m1_s2', label: 'M28 (R32-1)', time: "12.30 WIB" }}
+                r32Match={{ num: 28, p1Key: 'r32_m1_p1', p2Key: 'r32_m1_p2', s1Key: 'r32_m1_s1', s2Key: 'r32_m1_s2', label: 'M28 (R32-1)' }}
                 isBye={true}
               />
             }
             r32Block2={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 2, time: "10.30 WIB" }}
-                bottomItem={{ type: 'match', num: 3, time: "10.30 WIB" }}
-                r32Match={{ num: 29, p1Key: 'r32_m2_p1', p2Key: 'r32_m2_p2', s1Key: 'r32_m2_s1', s2Key: 'r32_m2_s2', label: 'M29 (R32-2)', time: "12.30 WIB" }}
+                topMatch={{ num: 2 }}
+                bottomItem={{ type: 'match', num: 3 }}
+                r32Match={{ num: 29, p1Key: 'r32_m2_p1', p2Key: 'r32_m2_p2', s1Key: 'r32_m2_s1', s2Key: 'r32_m2_s2', label: 'M29 (R32-2)' }}
               />
             }
             r16TopMatch={{ num: 44, p1Key: 'r16_m1_p1', p2Key: 'r16_m1_p2', s1Key: 'r16_m1_s1', s2Key: 'r16_m1_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 4, time: "11.00 WIB" }}
-                bottomItem={{ type: 'match', num: 5, time: "11.00 WIB" }}
-                r32Match={{ num: 30, p1Key: 'r32_m3_p1', p2Key: 'r32_m3_p2', s1Key: 'r32_m3_s1', s2Key: 'r32_m3_s2', label: 'M30 (R32-3)', time: "13.00 WIB" }}
+                topMatch={{ num: 4 }}
+                bottomItem={{ type: 'match', num: 5 }}
+                r32Match={{ num: 30, p1Key: 'r32_m3_p1', p2Key: 'r32_m3_p2', s1Key: 'r32_m3_s1', s2Key: 'r32_m3_s2', label: 'M30 (R32-3)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 6, time: "11.30 WIB" }}
-                bottomItem={{ type: 'match', num: 7, time: "11.30 WIB" }}
-                r32Match={{ num: 31, p1Key: 'r32_m4_p1', p2Key: 'r32_m4_p2', s1Key: 'r32_m4_s1', s2Key: 'r32_m4_s2', label: 'M31 (R32-4)', time: "13.00 WIB" }}
+                topMatch={{ num: 6 }}
+                bottomItem={{ type: 'match', num: 7 }}
+                r32Match={{ num: 31, p1Key: 'r32_m4_p1', p2Key: 'r32_m4_p2', s1Key: 'r32_m4_s1', s2Key: 'r32_m4_s2', label: 'M31 (R32-4)' }}
               />
             }
             r16BottomMatch={{ num: 45, p1Key: 'r16_m2_p1', p2Key: 'r16_m2_p2', s1Key: 'r16_m2_s1', s2Key: 'r16_m2_s2' }}
@@ -720,32 +720,32 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             quadNum={2}
             r32Block1={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 8, time: "12.00 WIB" }}
+                topMatch={{ num: 8 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 2', slotKey: 'r32_m5_p2' }}
-                r32Match={{ num: 32, p1Key: 'r32_m5_p1', p2Key: 'r32_m5_p2', s1Key: 'r32_m5_s1', s2Key: 'r32_m5_s2', label: 'M32 (R32-5)', time: "13.30 WIB" }}
+                r32Match={{ num: 32, p1Key: 'r32_m5_p1', p2Key: 'r32_m5_p2', s1Key: 'r32_m5_s1', s2Key: 'r32_m5_s2', label: 'M32 (R32-5)' }}
                 isBye={true}
               />
             }
             r32Block2={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 9, time: "12.00 WIB" }}
-                bottomItem={{ type: 'match', num: 10, time: "12.00 WIB" }}
-                r32Match={{ num: 33, p1Key: 'r32_m6_p1', p2Key: 'r32_m6_p2', s1Key: 'r32_m6_s1', s2Key: 'r32_m6_s2', label: 'M33 (R32-6)', time: "13.30 WIB" }}
+                topMatch={{ num: 9 }}
+                bottomItem={{ type: 'match', num: 10 }}
+                r32Match={{ num: 33, p1Key: 'r32_m6_p1', p2Key: 'r32_m6_p2', s1Key: 'r32_m6_s1', s2Key: 'r32_m6_s2', label: 'M33 (R32-6)' }}
               />
             }
             r16TopMatch={{ num: 46, p1Key: 'r16_m3_p1', p2Key: 'r16_m3_p2', s1Key: 'r16_m3_s1', s2Key: 'r16_m3_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 11, time: "12.30 WIB" }}
-                bottomItem={{ type: 'match', num: 12, time: "12.30 WIB" }}
-                r32Match={{ num: 34, p1Key: 'r32_m7_p1', p2Key: 'r32_m7_p2', s1Key: 'r32_m7_s1', s2Key: 'r32_m7_s2', label: 'M34 (R32-7)', time: "14.00 WIB" }}
+                topMatch={{ num: 11 }}
+                bottomItem={{ type: 'match', num: 12 }}
+                r32Match={{ num: 34, p1Key: 'r32_m7_p1', p2Key: 'r32_m7_p2', s1Key: 'r32_m7_s1', s2Key: 'r32_m7_s2', label: 'M34 (R32-7)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 13, time: "12.30 WIB" }}
+                topMatch={{ num: 13 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 3', slotKey: 'r32_m8_p2' }}
-                r32Match={{ num: 35, p1Key: 'r32_m8_p1', p2Key: 'r32_m8_p2', s1Key: 'r32_m8_s1', s2Key: 'r32_m8_s2', label: 'M35 (R32-8)', time: "14.00 WIB" }}
+                r32Match={{ num: 35, p1Key: 'r32_m8_p1', p2Key: 'r32_m8_p2', s1Key: 'r32_m8_s1', s2Key: 'r32_m8_s2', label: 'M35 (R32-8)' }}
                 isBye={true}
               />
             }
@@ -768,7 +768,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 <p className="text-xs text-slate-300">30 Tim · Match 14 s/d 27 di R64 · 2 Tim BYE · Menuju QF 3 & QF 4</p>
               </div>
             </div>
-            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold shrink-0">13.15 - 17.00 WIB</span>
+            <span className="text-xs font-mono bg-white/20 px-3 py-1 rounded-full font-bold shrink-0">Sesi Siang</span>
           </div>
 
           {/* QUAD 3 (QF 3) */}
@@ -777,32 +777,32 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             quadNum={3}
             r32Block1={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 14, time: "13.15 WIB" }}
+                topMatch={{ num: 14 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 4', slotKey: 'r32_m9_p2' }}
-                r32Match={{ num: 36, p1Key: 'r32_m9_p1', p2Key: 'r32_m9_p2', s1Key: 'r32_m9_s1', s2Key: 'r32_m9_s2', label: 'M36 (R32-9)', time: "15.30 WIB" }}
+                r32Match={{ num: 36, p1Key: 'r32_m9_p1', p2Key: 'r32_m9_p2', s1Key: 'r32_m9_s1', s2Key: 'r32_m9_s2', label: 'M36 (R32-9)' }}
                 isBye={true}
               />
             }
             r32Block2={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 15, time: "13.15 WIB" }}
-                bottomItem={{ type: 'match', num: 16, time: "13.45 WIB" }}
-                r32Match={{ num: 37, p1Key: 'r32_m10_p1', p2Key: 'r32_m10_p2', s1Key: 'r32_m10_s1', s2Key: 'r32_m10_s2', label: 'M37 (R32-10)', time: "15.30 WIB" }}
+                topMatch={{ num: 15 }}
+                bottomItem={{ type: 'match', num: 16 }}
+                r32Match={{ num: 37, p1Key: 'r32_m10_p1', p2Key: 'r32_m10_p2', s1Key: 'r32_m10_s1', s2Key: 'r32_m10_s2', label: 'M37 (R32-10)' }}
               />
             }
             r16TopMatch={{ num: 48, p1Key: 'r16_m5_p1', p2Key: 'r16_m5_p2', s1Key: 'r16_m5_s1', s2Key: 'r16_m5_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 17, time: "13.45 WIB" }}
-                bottomItem={{ type: 'match', num: 18, time: "14.15 WIB" }}
-                r32Match={{ num: 38, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M38 (R32-11)', time: "16.00 WIB" }}
+                topMatch={{ num: 17 }}
+                bottomItem={{ type: 'match', num: 18 }}
+                r32Match={{ num: 38, p1Key: 'r32_m11_p1', p2Key: 'r32_m11_p2', s1Key: 'r32_m11_s1', s2Key: 'r32_m11_s2', label: 'M38 (R32-11)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 19, time: "14.15 WIB" }}
-                bottomItem={{ type: 'match', num: 20, time: "14.45 WIB" }}
-                r32Match={{ num: 39, p1Key: 'r32_m12_p1', p2Key: 'r32_m12_p2', s1Key: 'r32_m12_s1', s2Key: 'r32_m12_s2', label: 'M39 (R32-12)', time: "16.00 WIB" }}
+                topMatch={{ num: 19 }}
+                bottomItem={{ type: 'match', num: 20 }}
+                r32Match={{ num: 39, p1Key: 'r32_m12_p1', p2Key: 'r32_m12_p2', s1Key: 'r32_m12_s1', s2Key: 'r32_m12_s2', label: 'M39 (R32-12)' }}
               />
             }
             r16BottomMatch={{ num: 49, p1Key: 'r16_m6_p1', p2Key: 'r16_m6_p2', s1Key: 'r16_m6_s1', s2Key: 'r16_m6_s2' }}
@@ -815,32 +815,32 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
             quadNum={4}
             r32Block1={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 21, time: "14.45 WIB" }}
+                topMatch={{ num: 21 }}
                 bottomItem={{ type: 'bye', label: 'BYE Slot 5', slotKey: 'r32_m13_p2' }}
-                r32Match={{ num: 40, p1Key: 'r32_m13_p1', p2Key: 'r32_m13_p2', s1Key: 'r32_m13_s1', s2Key: 'r32_m13_s2', label: 'M40 (R32-13)', time: "16.30 WIB" }}
+                r32Match={{ num: 40, p1Key: 'r32_m13_p1', p2Key: 'r32_m13_p2', s1Key: 'r32_m13_s1', s2Key: 'r32_m13_s2', label: 'M40 (R32-13)' }}
                 isBye={true}
               />
             }
             r32Block2={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 22, time: "15.00 WIB" }}
-                bottomItem={{ type: 'match', num: 23, time: "15.00 WIB" }}
-                r32Match={{ num: 41, p1Key: 'r32_m14_p1', p2Key: 'r32_m14_p2', s1Key: 'r32_m14_s1', s2Key: 'r32_m14_s2', label: 'M41 (R32-14)', time: "16.30 WIB" }}
+                topMatch={{ num: 22 }}
+                bottomItem={{ type: 'match', num: 23 }}
+                r32Match={{ num: 41, p1Key: 'r32_m14_p1', p2Key: 'r32_m14_p2', s1Key: 'r32_m14_s1', s2Key: 'r32_m14_s2', label: 'M41 (R32-14)' }}
               />
             }
             r16TopMatch={{ num: 50, p1Key: 'r16_m7_p1', p2Key: 'r16_m7_p2', s1Key: 'r16_m7_s1', s2Key: 'r16_m7_s2' }}
             r32Block3={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 24, time: "15.15 WIB" }}
-                bottomItem={{ type: 'match', num: 25, time: "15.15 WIB" }}
-                r32Match={{ num: 42, p1Key: 'r32_m15_p1', p2Key: 'r32_m15_p2', s1Key: 'r32_m15_s1', s2Key: 'r32_m15_s2', label: 'M42 (R32-15)', time: "17.00 WIB" }}
+                topMatch={{ num: 24 }}
+                bottomItem={{ type: 'match', num: 25 }}
+                r32Match={{ num: 42, p1Key: 'r32_m15_p1', p2Key: 'r32_m15_p2', s1Key: 'r32_m15_s1', s2Key: 'r32_m15_s2', label: 'M42 (R32-15)' }}
               />
             }
             r32Block4={
               <ReadOnlyR32PairBlock
-                topMatch={{ num: 26, time: "15.30 WIB" }}
-                bottomItem={{ type: 'match', num: 27, time: "15.30 WIB" }}
-                r32Match={{ num: 43, p1Key: 'r32_m16_p1', p2Key: 'r32_m16_p2', s1Key: 'r32_m16_s1', s2Key: 'r32_m16_s2', label: 'M43 (R32-16)', time: "17.00 WIB" }}
+                topMatch={{ num: 26 }}
+                bottomItem={{ type: 'match', num: 27 }}
+                r32Match={{ num: 43, p1Key: 'r32_m16_p1', p2Key: 'r32_m16_p2', s1Key: 'r32_m16_s1', s2Key: 'r32_m16_s2', label: 'M43 (R32-16)' }}
               />
             }
             r16BottomMatch={{ num: 51, p1Key: 'r16_m8_p1', p2Key: 'r16_m8_p2', s1Key: 'r16_m8_s1', s2Key: 'r16_m8_s2' }}
@@ -924,7 +924,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                       s1Key={`qf_m${m}_s1`}
                       s2Key={`qf_m${m}_s2`}
                       stageName="8 Besar"
-                      matchTime="18.30 WIB"
                     />
                   );
                 })}
@@ -944,7 +943,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                   s1Key="sf_m1_s1"
                   s2Key="sf_m1_s2"
                   stageName="Semifinal"
-                  matchTime="19.45 WIB"
                 />
 
                 <ReadOnlyMatchCard
@@ -954,7 +952,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                   s1Key="sf_m2_s1"
                   s2Key="sf_m2_s2"
                   stageName="Semifinal"
-                  matchTime="19.45 WIB"
                 />
               </div>
             </div>
@@ -977,7 +974,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                     s1Key="final_m1_s1"
                     s2Key="final_m1_s2"
                     stageName="Grand Final"
-                    matchTime="21.30 WIB"
                   />
                 </div>
 
@@ -993,7 +989,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                     s1Key="bronze_m1_s1"
                     s2Key="bronze_m1_s2"
                     stageName="Perebutan Juara 3"
-                    matchTime="20.45 WIB"
                   />
                 </div>
               </div>
@@ -1023,7 +1018,7 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                 <tr>
                   <th className="px-4 py-3">No</th>
                   <th className="px-4 py-3">Babak</th>
-                  <th className="px-4 py-3">Sesi / Waktu</th>
+                  <th className="px-4 py-3">Sesi</th>
                   <th className="px-4 py-3">Tim 1 (Merah)</th>
                   <th className="px-4 py-3 text-center">Skor</th>
                   <th className="px-4 py-3">Tim 2 (Biru)</th>
@@ -1044,7 +1039,6 @@ export default function PublicBracketView({ initialTeams = [], initialData = {} 
                       </td>
                       <td className="px-4 py-3 text-slate-500">
                         <span className="font-medium text-slate-800">{m.session}</span>
-                        <span className="block text-[10px] text-slate-400 font-mono">{m.time}</span>
                       </td>
                       <td className={cn(
                         "px-4 py-3 font-medium",
